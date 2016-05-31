@@ -1,0 +1,30 @@
+{
+  "name": "swagger-jsblade",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lincolnlau/swagger-jsblade.git"
+  },
+  "author": "lincolnlau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lincolnlau/swagger-jsblade/issues"
+  },
+  "homepage": "https://github.com/lincolnlau/swagger-jsblade#readme",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "events": "^1.1.0",
+    "fs-extra": "^0.30.0",
+    "inquirer": "^1.0.2",
+    "lodash": "^4.13.1",
+    "path": "^0.12.7"
+  },
+  "bin": {
+    "blade": "bin/blade.js"
+  }
+}
