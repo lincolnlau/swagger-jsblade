@@ -19,9 +19,9 @@
     <![endif]-->
   </head>
   <body ng-app="app" class="ng-cloak">
-    <div>
-      <div ui-view="nav"></div>
-      <div ui-view="main"></div>
+    <div layout="column" class="maincontainer">
+      <ui-view name="nav"></ui-view>
+      <ui-view name="main" class="maincontent"></ui-view>
     </div>
   </body>
 </html>

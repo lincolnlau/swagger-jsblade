@@ -1,7 +1,4 @@
-<div layout="column">
-<section layout="row" flex>
-  <div ui-view="sider"></div>
-  <md-content ui-view="content">
-  </md-content>
+<section layout="row"  layout-align="space-between none" class="mainsection">
+  <ui-view name="sider" class="sider"></ui-view>
+  <md-content ui-view="content" flex></md-content>
 </section>
-</div>
