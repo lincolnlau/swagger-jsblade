@@ -11,34 +11,25 @@ module.exports = function($stateProvider, $urlRouterProvider) {
         controller: 'navbarController',
         controllerAs: "navbar"
       },
-      'main': {
-        templateUrl: 'app/main.html',
-        controller: 'mainController',
-        controllerAs: 'main'
-      }
-    }
-  })
-  .state('root.main', {
-    views: {
       'sider': {
         templateUrl: 'app/common/sider/sider.html',
         controller: 'siderController',
         controllerAs: 'sider'
       },
-      'content':{
-         template: '<div ui-view></div>'
+      'main': {
+        template: '<div ui-view></div>'
       }
     }
   })
-  .state('root.main.home', {
+  .state('root.home', {
     url: "/index",
     templateUrl: 'app/home/home.html',
     controller: 'homeController',
     controllerAs: 'home'
   })
-  .state('root.main.manager', {
+  .state('root.manager', {
     url: "/manager",
-    template: '<h1>Hello</h1>',
+    template: '<h1>Manager</h1>',
   })
   //$locationProvider.html5Mode(true);
 }

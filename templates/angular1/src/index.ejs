@@ -5,23 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Bootstrap 101 Template</title>
-
-    <!-- Bootstrap -->
-    <link href="http://awp-assets.meituan.net/hfe/hfe-assets/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-    <link href="http://awp-assets.meituan.net/hfe/hfe-assets/angular/1.5.5/angular-csp.css" rel="stylesheet">
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <title>MyApp</title>
   </head>
-  <body ng-app="app" class="ng-cloak">
-    <div layout="column" class="maincontainer">
-      <ui-view name="nav"></ui-view>
-      <ui-view name="main" class="maincontent"></ui-view>
+  <body ng-app="app" ng-cloak layout="column">
+    <md-toolbar ui-view="nav"></md-toolbar>
+    <div flex layout="row">
+      <md-sidenav flex="15" md-is-locked-open="true" class="md-whiteframe-z1">
+        <md-content ui-view="sider"></md-content>
+      </md-sidenav>
+      <div layout="column" ui-view="main" flex></div>
     </div>
   </body>
 </html>

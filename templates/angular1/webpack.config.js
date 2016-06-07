@@ -22,8 +22,7 @@ module.exports = {
     ],
     // Entry "src/app.js"
     app: [
-      './app.js',
-      './app/main.css'
+      './app.js'
     ]
   },
   output: {

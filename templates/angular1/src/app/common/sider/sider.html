@@ -1,15 +1,8 @@
-<md-sidenav
-  class="md-sidenav-left"
-  md-component-id="left"
-  md-is-locked-open="$mdMedia('gt-md')"
-  md-disable-backdrop
-  md-whiteframe="4">
-  <md-list flex>
-    <md-subheader class="md-no-sticky">3 line item (with hover)</md-subheader>
-    <md-list-item class="md-1-line" ng-repeat="item in sider.links" ng-click="null">
-        <div class="md-list-item-text" layout="column">
-          <a ng-href="{{item.link}}">{{item.text}}</a>
-        </div>
-      </md-list-item>
-  </md-list>
-</md-sidenav>
+<md-list flex>
+  <md-subheader class="md-no-sticky">3 line item (with hover)</md-subheader>
+  <md-list-item class="md-1-line" ng-repeat="item in sider.links" ng-click="null">
+      <div class="md-list-item-text" layout="column">
+        <a ng-href="{{item.link}}">{{item.text}}</a>
+      </div>
+    </md-list-item>
+</md-list>
