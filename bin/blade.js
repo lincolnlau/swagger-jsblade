@@ -18,7 +18,7 @@ app
 app
     .command('api <names> <swaggerFile> <toPath>')
     .description('创建一个api接口集合')
-    //.option('-n, --ngHttp', "$http类型")
+    .option('-n, --ngHttp', "$http类型")
     //.option('-r, --resource', "angular-resource类型")
     //.option('<name> <swaggerFile> <toPath>', "ss")
     .action(execute(codegen.create));
