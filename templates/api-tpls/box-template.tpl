@@ -24,5 +24,5 @@
         );
     }
 }(this, function ($${config.dependenceObj.params}) {
-{@include file://./$${config.type}-template.js, _}
+{@include file://./$${config.type}-template.tpl, _}
 }));

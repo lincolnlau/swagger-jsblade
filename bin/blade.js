@@ -16,11 +16,11 @@ app
   .action(execute(project.create));
 
 app
-    .command('api <names> <swaggerFile> <toPath>')
+    .command('api')
     .description('创建一个api接口集合')
     .option('-n, --ngHttp', "$http类型")
-    //.option('-r, --resource', "angular-resource类型")
-    //.option('<name> <swaggerFile> <toPath>', "ss")
+    .option('-r, --resource', "angular-resource类型")
+    .option('<apiName> <swaggerFile> <toPath>', "angular-resource类型")
     .action(execute(codegen.create));
 
 app.parse(process.argv);
