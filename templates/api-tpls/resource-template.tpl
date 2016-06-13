@@ -14,7 +14,6 @@ app.factory('$${config.apiName}', ['$resource', function ($resource) {
         // 例子
         // toDoExample: {
         //     url: '/todo_example',
-        //     useLoader: false,  // 设置是否使用loader效果
         //     method: 'get'
         // },
 {@each swagger.paths as path,index}
