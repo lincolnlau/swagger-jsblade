@@ -5,6 +5,9 @@
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
+
+
+
 var app = angular.module('$${config.apiName}Module', [
     'ngResource'
 ]);
@@ -25,6 +28,16 @@ app.factory('$${config.apiName}', ['$resource', function ($resource) {
             url: '$${index}',
             method: '$${key}',
             transformRequest: [],
+            {@if req.produces && !req.consumes}headers:{
+                'Accept': '$${req.produces}'
+            },{@/if}
+            {@if req.consumes && !req.produces}headers:{
+                'Content-Type': '$${req.consumes}'
+            },{@/if}
+            {@if req.consumes && req.produces}headers:{
+                'Accept': '$${req.produces}',
+                'Content-Type': '$${req.consumes}'
+            },{@/if}
             transformResponse: []
         }{@if !req.lastOneReq},{@/if}
     {@/each}
