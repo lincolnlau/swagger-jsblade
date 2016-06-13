@@ -17,10 +17,13 @@
   },
   "homepage": "https://github.com/lincolnlau/swagger-jsblade#readme",
   "dependencies": {
+    "colors": "^1.1.2",
     "commander": "^2.9.0",
+    "debug": "^2.2.0",
     "events": "^1.1.0",
     "fs-extra": "^0.30.0",
     "inquirer": "^1.0.2",
+    "juicer-express-adapter": "^0.1.10",
     "lodash": "^4.13.1",
     "path": "^0.12.7"
   },
