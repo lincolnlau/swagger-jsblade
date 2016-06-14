@@ -5,15 +5,14 @@
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
-
-
-
 var app = angular.module('$${config.apiName}Module', [
     'ngResource'
 ]);
 
 app.factory('$${config.apiName}', ['$resource', function ($resource) {
-    return $resource('$${swagger.host}$${swagger.basePath}', {}, {
+    var urlPre = '$${swagger.urlPre}';
+
+    return $resource('', {}, {
         // 例子
         // toDoExample: {
         //     url: '/todo_example',
@@ -25,22 +24,60 @@ app.factory('$${config.apiName}', ['$resource', function ($resource) {
         * $${req.description}
         * */
         $${req.fnName}: {
-            url: '$${index}',
-            method: '$${key}',
-            transformRequest: [],
-            {@if req.produces && !req.consumes}headers:{
-                'Accept': '$${req.produces}'
-            },{@/if}
-            {@if req.consumes && !req.produces}headers:{
-                'Content-Type': '$${req.consumes}'
-            },{@/if}
-            {@if req.consumes && req.produces}headers:{
-                'Accept': '$${req.produces}',
-                'Content-Type': '$${req.consumes}'
-            },{@/if}
-            transformResponse: []
+            url: urlPre + '$${index}',
+            method: '$${key}',$${req.headerStr}
+            transformRequest: [{@if req.transformRequestFormData}transformRequestFormData{@/if}]
         }{@if !req.lastOneReq},{@/if}
     {@/each}
 {@/each}
     });
 }]);
+
+/* formdata 转换*/
+function transformRequestFormData(data, headersGetter) {
+    // Here we set the Content-Type header to null.
+    var headers = headersGetter();
+    headers['Content-Type'] = undefined;
+
+    // And here begins the logic which could be used somewhere else
+    // as noted above.
+    if (data == undefined) {
+        return data;
+    }
+    var fd = new FormData();
+    var createKey = function(_keys_, currentKey) {
+        var keys = angular.copy(_keys_);
+        keys.push(currentKey);
+        formKey = keys.shift();
+        if (keys.length) {
+            formKey += "[" + keys.join("][") + "]"
+        }
+        return formKey;
+    };
+
+    var addToFd = function(object, keys) {
+        angular.forEach(object, function(value, key) {
+            var formKey = createKey(keys, key);
+
+            if (value instanceof File) {
+                fd.append(formKey, value);
+            } else if (value instanceof FileList) {
+                if (value.length == 1) {
+                    fd.append(formKey, value[0]);
+                } else {
+                    angular.forEach(value, function(file, index) {
+                        fd.append(formKey + '[' + index + ']', file);
+                    });
+                }
+            } else if (value && (typeof value === 'object')) {
+                var _keys = angular.copy(keys);
+                _keys.push(key);
+                addToFd(value, _keys);
+            } else {
+                fd.append(formKey, value);
+            }
+        });
+    };
+    addToFd(data, []);
+    return fd;
+}
