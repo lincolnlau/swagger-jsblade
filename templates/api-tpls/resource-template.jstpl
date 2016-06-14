@@ -26,14 +26,16 @@ app.factory('$${config.apiName}', ['$resource', function ($resource) {
         $${req.fnName}: {
             url: urlPre + '$${index}',
             method: '$${key}',$${req.headerStr}
-            transformRequest: [{@if req.transformRequestFormData}transformRequestFormData{@/if}]
+            transformRequest: [{@if req.transformRequestFormData}transformRequestFormData{@/if}{@if req.transformRequestAsForm}transformRequestAsForm{@/if}]
         }{@if !req.lastOneReq},{@/if}
     {@/each}
 {@/each}
     });
 }]);
 
-/* formdata 转换*/
+/*
+* multipart/form-data 类型表单,通常用于上传文件
+* */
 function transformRequestFormData(data, headersGetter) {
     // Here we set the Content-Type header to null.
     var headers = headersGetter();
@@ -48,7 +50,7 @@ function transformRequestFormData(data, headersGetter) {
     var createKey = function(_keys_, currentKey) {
         var keys = angular.copy(_keys_);
         keys.push(currentKey);
-        formKey = keys.shift();
+        var formKey = keys.shift();
         if (keys.length) {
             formKey += "[" + keys.join("][") + "]"
         }
@@ -81,3 +83,40 @@ function transformRequestFormData(data, headersGetter) {
     addToFd(data, []);
     return fd;
 }
+
+/*
+ * application/x-www-form-urlencoded 类型表单,普通表单类型
+ * */
+
+function transformRequestAsForm(data, getHeaders) {
+    function rfc3986 (str) {
+        return str.replace(/[!'()*]/g, function (c) {
+            return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+        });
+    }
+    var headers = getHeaders();
+    headers[ 'Content-Type' ] = 'application/x-www-form-urlencoded; charset=utf-8';
+
+    // If this is not an object, defer to native stringification.
+    if (!angular.isObject(data)) {
+        return ((data == null) ? '' : data.toString());
+    }
+
+    var buffer = [];
+
+    // Serialize each key in the object.
+    angular.forEach(data, function (value, key) {
+        if (value == null) {
+            value = '';
+        } else if (angular.isObject(value)) {
+            value = angular.toJson(value);
+        }
+        buffer.push(encodeURIComponent(key) + '=' + encodeURIComponent((value == null) ? '' : value));
+    });
+
+    // Serialize the buffer and clean it up for transportation.
+
+    var encodedStr = buffer.join('&').replace(/%20/g, '+');
+    return rfc3986(encodedStr);
+}
+
