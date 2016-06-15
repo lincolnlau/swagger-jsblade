@@ -9,7 +9,7 @@ var app = angular.module('$${config.apiName}Module', [
     'ngResource'
 ]);
 
-app.factory('$${config.apiName}', ['$resource', function ($resource) {
+app.factory('__$${config.apiName}__', ['$resource', function ($resource) {
     var urlPre = '$${swagger.urlPre}';
 
     return $resource('', {}, {
@@ -24,14 +24,149 @@ app.factory('$${config.apiName}', ['$resource', function ($resource) {
         * $${req.description}
         * */
         $${req.fnName}: {
-            url: urlPre + '$${index}',
-            method: '$${key}',$${req.headerStr}
-            transformRequest: [{@if req.transformRequestFormData}transformRequestFormData{@/if}{@if req.transformRequestAsForm}transformRequestAsForm{@/if}]
+            url: urlPre + '$${index}',$${req.headerStr}
+        {@if req.hasInHeader || req.transformRequestAsForm}
+            transformRequest: [
+                {@if req.hasInHeader}
+                function (objParam, headersGetter) {
+                    var headers = headersGetter();
+                    var temp;
+                    var data = objParam.headers;
+                    Object.keys(data).forEach(function (key, index) {
+                        temp = data[key];
+                        if (typeof temp !== 'undefined' && temp !== null) {
+                            headers[key] = temp;
+                        }
+                    });
+                    {@if req.transformRequestAsForm}
+                    return objParam.other;
+                    {@else}
+                    return angular.toJson(objParam.other);
+                    {@/if}
+                }{@/if}{@if req.transformRequestAsForm}{@if req.hasInHeader},
+                    {@/if}
+                    {@if req.transformRequestFormData}
+                transformRequestFormData
+                    {@else}
+                transformRequestAsForm
+                    {@/if}
+                {@/if}
+            ],
+        {@/if}
+            method: '$${key}'
         }{@if !req.lastOneReq},{@/if}
     {@/each}
 {@/each}
     });
 }]);
+
+app.factory('$${config.apiName}', ['__$${config.apiName}__', '$q', function (innerApi, $q) {
+
+    return {
+        // 例子
+        // toDoExample: {
+        //     url: '/todo_example',
+        //     method: 'get'
+        // },
+    {@each swagger.paths as path,index}
+        {@each path as req,key}
+        /*
+         * $${req.description}
+         * */
+        $${req.fnName}: function (paramObj, success, error) {
+            var tempObj = {};
+            var objParam = {};
+            var deferred = $q.defer();
+            var paramArr = [];
+            {@each req.parameters as parameter,pIndex}
+            paramArr.push({
+                name: '$${parameter.name}',
+                required: {@if parameter.required}true{@else}false{@/if},
+                localIn: '$${parameter.in}'
+            });
+            {@/each}
+            if (lackParam(deferred, paramArr, paramObj)) {
+                return deferred.promise;
+            }
+            tempObj = setParams (tempObj, paramArr, paramObj);
+            var form = tempObj.form;
+            var body = tempObj.body;
+            var headers = tempObj.headers;
+            var urlParam = tempObj.urlParam;
+            if (Object.keys(form).length > 0) {
+                objParam = form;
+            } else {
+                objParam = body;
+            }
+            if (Object.keys(headers).length > 0) {
+                objParam = {
+                    headers: headers,
+                    other: objParam
+                };
+            }
+            return innerApi.$${req.fnName}(urlParam, objParam, success, error).$promise;
+        }{@if !req.lastOneReq},{@/if}
+        {@/each}
+    {@/each}
+    };
+}]);
+
+/*
+* 参数赋值
+* */
+
+function setParams (tempObj, paramArr, paramObj) {
+    tempObj.urlParam = {};
+    tempObj.body = {};
+    tempObj.form = {};
+    tempObj.headers = {};
+    var key;
+    var localIn;
+    var temp;
+    paramArr.forEach(function (item, index) {
+        key = item.name;
+        localIn = item.localIn;
+        temp = paramObj[key];
+        if (typeof temp !== 'undefined' && temp !== null) {
+            switch (localIn) {
+                case 'body':
+                    tempObj.body = temp;
+                    break;
+                case 'formData':
+                    tempObj.form[key] = temp;
+                    break;
+                case 'header':
+                    tempObj.headers[key] = temp;
+                    break;
+                default:
+                    tempObj.urlParam[key] = temp;
+            }
+        }
+    });
+    return tempObj;
+}
+
+/*
+* 必须参数校验
+* */
+function lackParam (deferred, paramArr, paramObj) {
+    var key;
+    var required;
+    var lackArr = [];
+    paramArr.forEach(function (item, index) {
+        key = item.name;
+        required = item.required;
+        if (required && (typeof paramObj[key] === 'undefined' || paramObj[key] === null)) {
+            lackArr.push(key);
+        }
+    });
+    if (lackArr.length > 0) {
+        deferred.reject(new Error('缺少必须参数: ' + lackArr.join(', ') + ' !'));
+        return true;
+    } else {
+        return false;
+    }
+}
 
 /*
 * multipart/form-data 类型表单,通常用于上传文件
