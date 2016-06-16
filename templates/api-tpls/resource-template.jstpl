@@ -37,7 +37,7 @@ app.factory('$${config.apiName}', ['__$${config.apiName}__', '$q', function (inn
                 localIn: '$${parameter.in}'
             });
             {@/each}
-            if (lackParam(deferred, paramArr, paramObj)) {
+            if (lackParam(deferred, paramArr, paramObj, error)) {
                 return deferred.promise;
             }
             tempObj = setParams (tempObj, paramArr, paramObj);
@@ -149,7 +149,7 @@ function setParams (tempObj, paramArr, paramObj) {
 /*
 * 必须参数校验
 * */
-function lackParam (deferred, paramArr, paramObj) {
+function lackParam (deferred, paramArr, paramObj, error) {
     var key;
     var required;
     var lackArr = [];
@@ -161,7 +161,14 @@ function lackParam (deferred, paramArr, paramObj) {
         }
     });
     if (lackArr.length > 0) {
-        deferred.reject(new Error('缺少必要参数: ' + lackArr.join(', ') + ' !'));
+        var err = new Error('缺少必要参数: ' + lackArr.join(', ') + ' !');
+        if (angular.isFunction(error)) {
+            var resErr = error(err);
+            if (typeof resErr !== 'undefined') {
+                err = resErr;
+            }
+        }
+        deferred.reject(err);
         return true;
     } else {
         return false;
