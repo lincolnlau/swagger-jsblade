@@ -20,7 +20,7 @@ app
     .description('创建一个api接口集合')
     .option('-n, --ngHttp', "$http类型")
     .option('-r, --resource', "angular-resource类型")
-    .option('<apiName> <swaggerFile> <toPath>', "angular-resource类型")
+    .option('<apiName> <swaggerFile> <toPath>', "必填:<api名称> <sawagger文件位置,支持本地和线上> <输出文件位置>")
     .action(execute(codegen.create));
 
 app.parse(process.argv);
