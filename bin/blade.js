@@ -5,6 +5,7 @@
 var app =  require('commander');
 var project = require('../lib/commands/project');
 var codegen = require('../lib/commands/codegen');
+var mock = require('../lib/commands/mock');
 var frameworks = Object.keys(project.frameworks).join('|');
 var cli = require('../lib/util/cli');
 var execute = cli.execute;
@@ -22,6 +23,12 @@ app
     .option('-r, --resource', "angular-resource类型")
     .option('<apiName> <swaggerFile> <toPath>', "angular-resource类型")
     .action(execute(codegen.create));
+
+app
+.command('mock [name]')
+.description('创建一个API Mock server')
+.option('<swaggerFile>', "angular-resource类型")
+.action(execute(mock.create));
 
 app.parse(process.argv);
 cli.validate(app);
