@@ -163,10 +163,7 @@ function lackParam (deferred, paramArr, paramObj, error) {
     if (lackArr.length > 0) {
         var err = new Error('缺少必要参数: ' + lackArr.join(', ') + ' !');
         if (angular.isFunction(error)) {
-            var resErr = error(err);
-            if (typeof resErr !== 'undefined') {
-                err = resErr;
-            }
+            err = error(err);
         }
         deferred.reject(err);
         return true;
