@@ -1,0 +1,148 @@
+/*
+* 参数赋值
+* */
+
+function getParams (paramArr, paramObj) {
+    var tempObj = {};
+    tempObj.urlParam = {};
+    tempObj.body = {};
+    tempObj.form = {};
+    tempObj.headers = {};
+    var key;
+    var localIn;
+    var temp;
+    paramArr.forEach(function (item, index) {
+        key = item.name;
+        localIn = item.localIn;
+        temp = paramObj[key];
+        if (typeof temp !== 'undefined' && temp !== null) {
+            switch (localIn) {
+                case 'body':
+                    tempObj.body = temp;
+                    break;
+                case 'formData':
+                    tempObj.form[key] = temp;
+                    break;
+                case 'header':
+                    tempObj.headers[key] = temp;
+                    break;
+                default:
+                    tempObj.urlParam[key] = temp;
+            }
+        }
+    });
+    return tempObj;
+}
+
+/*
+* 必须参数校验
+* */
+function lackParam (deferred, paramArr, paramObj, error) {
+    var key;
+    var required;
+    var lackArr = [];
+    paramArr.forEach(function (item, index) {
+        key = item.name;
+        required = item.required;
+        if (required && (typeof paramObj[key] === 'undefined' || paramObj[key] === null)) {
+            lackArr.push(key);
+        }
+    });
+    if (lackArr.length > 0) {
+        var err = new Error('缺少必要参数: ' + lackArr.join(', ') + ' !');
+        if (angular.isFunction(error)) {
+            err = error(err);
+        }
+        deferred.reject(err);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/*
+* multipart/form-data 类型表单,通常用于上传文件
+* */
+function transformRequestFormData(data, headersGetter) {
+    // Here we set the Content-Type header to null.
+    var headers = headersGetter();
+    headers['Content-Type'] = undefined;
+
+    // And here begins the logic which could be used somewhere else
+    // as noted above.
+    if (data === undefined) {
+        return data;
+    }
+    var fd = new FormData();
+    var createKey = function(_keys_, currentKey) {
+        var keys = angular.copy(_keys_);
+        keys.push(currentKey);
+        var formKey = keys.shift();
+        if (keys.length) {
+            formKey += "[" + keys.join("][") + "]"
+        }
+        return formKey;
+    };
+
+    var addToFd = function(object, keys) {
+        angular.forEach(object, function(value, key) {
+            var formKey = createKey(keys, key);
+
+            if (value instanceof File) {
+                fd.append(formKey, value);
+            } else if (value instanceof FileList) {
+                if (value.length === 1) {
+                    fd.append(formKey, value[0]);
+                } else {
+                    angular.forEach(value, function(file, index) {
+                        fd.append(formKey + '[' + index + ']', file);
+                    });
+                }
+            } else if (value && (typeof value === 'object')) {
+                var _keys = angular.copy(keys);
+                _keys.push(key);
+                addToFd(value, _keys);
+            } else {
+                fd.append(formKey, value);
+            }
+        });
+    };
+    addToFd(data, []);
+    return fd;
+}
+
+/*
+* application/x-www-form-urlencoded 类型表单,普通表单类型
+* */
+
+function transformRequestAsForm(data, getHeaders) {
+    function rfc3986 (str) {
+        return str.replace(/[!'()*]/g, function (c) {
+            return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+        });
+    }
+    var headers = getHeaders();
+    headers[ 'Content-Type' ] = 'application/x-www-form-urlencoded; charset=utf-8';
+
+    // If this is not an object, defer to native stringification.
+    if (!angular.isObject(data)) {
+        return ((data === null) ? '' : data.toString());
+    }
+
+    var buffer = [];
+
+    // Serialize each key in the object.
+    angular.forEach(data, function (value, key) {
+        if (value === null) {
+            value = '';
+        } else if (angular.isObject(value)) {
+            value = angular.toJson(value);
+        }
+        buffer.push(encodeURIComponent(key) + '=' + encodeURIComponent((value === null) ? '' : value));
+    });
+
+    // Serialize the buffer and clean it up for transportation.
+
+    var encodedStr = buffer.join('&').replace(/%20/g, '+');
+    return rfc3986(encodedStr);
+}

@@ -1,0 +1,123 @@
+/**
+ * 标题：          $${swagger.info.title}
+ * 版本：          $${swagger.info.version}
+ * 描述：          $${swagger.info.description}
+ * 时间：          $${config.createTime}
+ * swagger版本：   $${swagger.swagger}
+ */
+var app = angular.module('$${config.apiName}Module', [
+    'ngResource'
+]);
+
+/*
+* 外部暴露使用的API
+* */
+app.factory('$${config.apiName}', ['__$${config.apiName}__', '$q', function (innerApi, $q) {
+    return {
+    {@each swagger.paths as path,index}
+        {@each path as req,key}
+        /*
+         * $${req.description}
+         {@each req.parameters as parameter,pIndex}
+         * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
+         {@/each}
+         * */
+        $${req.fnName}: function (paramObj, success, error) {
+            if (!angular.isObject(paramObj)) {
+                paramObj = {};
+            }
+            var deferred = $q.defer();
+            var paramArr = [];
+            {@each req.parameters as parameter,pIndex}
+            paramArr.push({
+                name: '$${parameter.name}',
+                required: {@if parameter.required}true{@else}false{@/if},
+                localIn: '$${parameter.in}'
+            });
+            {@/each}
+            if (lackParam(deferred, paramArr, paramObj, error)) {
+                return deferred.promise;
+            }
+            var tempObj = getParams (paramArr, paramObj);
+            var urlParam = tempObj.urlParam;
+            var objParam = getObjParam (tempObj);
+            return innerApi.$${req.fnName}(urlParam, objParam, success, error).$promise;
+        }{@if !req.lastOneReq},{@/if}
+        {@/each}
+    {@/each}
+    };
+}]);
+
+/*
+* 生成objParam
+* */
+function getObjParam (tempObj) {
+    var objParam = {};
+    var form = tempObj.form;
+    var body = tempObj.body;
+    var headers = tempObj.headers;
+
+    if (Object.keys(form).length > 0) {
+        objParam = form;
+    } else {
+        objParam = body;
+    }
+    if (Object.keys(headers).length > 0) {
+        objParam = {
+            headers: headers,
+            other: objParam
+        };
+    }
+    return objParam;
+}
+
+/*
+ * 内部调用API
+ * */
+app.factory('__$${config.apiName}__', ['$resource', function ($resource) {
+    var urlPre = '$${swagger.urlPre}';
+    return $resource('', {}, {
+{@each swagger.paths as path,index}
+    {@each path as req,key}
+        /*
+         * $${req.description}
+         * */
+        $${req.fnName}: {
+            url: urlPre + '$${swagger.pathsUrl[index]}',{@if req.headerStr}
+            headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
+        {@if req.hasInHeader || req.transformRequestAsForm}
+            transformRequest: [
+                {@if req.hasInHeader}
+                function (objParam, headersGetter) {
+                    var headers = headersGetter();
+                    var temp;
+                    var data = objParam.headers;
+                    Object.keys(data).forEach(function (key, index) {
+                        temp = data[key];
+                        if (typeof temp !== 'undefined' && temp !== null) {
+                            headers[key] = temp;
+                        }
+                    });
+                    {@if req.transformRequestAsForm}
+                    return objParam.other;
+                    {@else}
+                    return angular.toJson(objParam.other);
+                    {@/if}
+                }{@/if}{@if req.transformRequestAsForm}{@if req.hasInHeader},
+                    {@/if}
+                    {@if req.transformRequestFormData}
+                transformRequestFormData
+                    {@else}
+                transformRequestAsForm
+                    {@/if}
+                {@/if}
+            ],
+        {@/if}
+            method: '$${key}'
+        }{@if !req.lastOneReq},{@/if}
+    {@/each}
+{@/each}
+    });
+}]);
+
+{@include file://./common-fn-template.juicer, _}
