@@ -108,4 +108,23 @@ function getOptions (options, paramArr, paramObj) {
     return options;
 }
 
+/*
+* toJsonReplacer
+* */
+function toJsonReplacer(key, value) {
+    var val = value;
+
+    if (typeof key === 'string' && key.charAt(0) === '$' && key.charAt(1) === '$') {
+        val = undefined;
+    } else if (value && value.window === value) {
+        val = '$WINDOW';
+    } else if (value &&  window.document === value) {
+        val = '$DOCUMENT';
+    } else if (value && value.$evalAsync && value.$watch) {
+        val = '$SCOPE';
+    }
+
+    return val;
+}
+
 {@include file://./common-fn-template.juicer, _}

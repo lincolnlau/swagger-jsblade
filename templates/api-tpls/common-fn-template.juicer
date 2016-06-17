@@ -1,7 +1,42 @@
 /*
+* 判断null 或 undefined
+* */
+function isNullOrUndefined (value) {
+    return (typeof value === 'undefined' || value === null);
+}
+
+/*
+* isUndefined
+* */
+function isUndefined(value) {return typeof value === 'undefined';}
+
+/*
+* isFunction
+* */
+function isFunction(value) {return typeof value === 'function';}
+
+/*
+* isObject
+* */
+function isObject(value) {
+    return value !== null && typeof value === 'object';
+}
+
+/*
+* toJson
+* */
+function toJson(obj) {
+    var rFn = null;
+    if (isUndefined(obj)) return undefined;
+    if (isFunction(toJsonReplacer)) {
+        rFn = toJsonReplacer;
+    }
+    return JSON.stringify(obj, rFn, null);
+}
+
+/*
 * 参数赋值
 * */
-
 function getParams (paramArr, paramObj) {
     var tempObj = {};
     tempObj.urlParam = {};
@@ -15,7 +50,7 @@ function getParams (paramArr, paramObj) {
         key = item.name;
         localIn = item.localIn;
         temp = paramObj[key];
-        if (typeof temp !== 'undefined' && temp !== null) {
+        if (!isNullOrUndefined(temp)) {
             switch (localIn) {
                 case 'body':
                     tempObj.body = temp;
@@ -44,13 +79,13 @@ function lackParam (deferred, paramArr, paramObj, error) {
     paramArr.forEach(function (item, index) {
         key = item.name;
         required = item.required;
-        if (required && (typeof paramObj[key] === 'undefined' || paramObj[key] === null)) {
+        if (required && isNullOrUndefined(paramObj[key])) {
             lackArr.push(key);
         }
     });
     if (lackArr.length > 0) {
         var err = new Error('缺少必要参数: ' + lackArr.join(', ') + ' !');
-        if (angular.isFunction(error)) {
+        if (isFunction(error)) {
             err = error(err);
         }
         deferred.reject(err);
@@ -64,18 +99,15 @@ function lackParam (deferred, paramArr, paramObj, error) {
 * multipart/form-data 类型表单,通常用于上传文件
 * */
 function transformRequestFormData(data, headersGetter) {
-    // Here we set the Content-Type header to null.
     var headers = headersGetter();
     headers['Content-Type'] = undefined;
-
-    // And here begins the logic which could be used somewhere else
-    // as noted above.
-    if (data === undefined) {
-        return data;
+    if (!isObject(data)) {
+        return (isNullOrUndefined(data) ? '' : data.toString());
     }
+
     var fd = new FormData();
     var createKey = function(_keys_, currentKey) {
-        var keys = angular.copy(_keys_);
+        var keys = JSON.parse(JSON.stringify(_keys_));
         keys.push(currentKey);
         var formKey = keys.shift();
         if (keys.length) {
@@ -85,27 +117,32 @@ function transformRequestFormData(data, headersGetter) {
     };
 
     var addToFd = function(object, keys) {
-        angular.forEach(object, function(value, key) {
+        for (var key in object) {
+            if (!object.hasOwnProperty(key)) {
+                continue;
+            }
+            var value = object[key];
             var formKey = createKey(keys, key);
 
             if (value instanceof File) {
                 fd.append(formKey, value);
             } else if (value instanceof FileList) {
-                if (value.length === 1) {
+                var len = value.length;
+                if (len === 1) {
                     fd.append(formKey, value[0]);
                 } else {
-                    angular.forEach(value, function(file, index) {
-                        fd.append(formKey + '[' + index + ']', file);
-                    });
+                    for (var i = 0; i < len; i++) {
+                        fd.append(formKey + '[' + i + ']', value[i]);
+                    }
                 }
-            } else if (value && (typeof value === 'object')) {
-                var _keys = angular.copy(keys);
+            } else if (isObject(value)) {
+                var _keys = JSON.parse(JSON.stringify(keys));
                 _keys.push(key);
                 addToFd(value, _keys);
             } else {
                 fd.append(formKey, value);
             }
-        });
+        }
     };
     addToFd(data, []);
     return fd;
@@ -114,7 +151,6 @@ function transformRequestFormData(data, headersGetter) {
 /*
 * application/x-www-form-urlencoded 类型表单,普通表单类型
 * */
-
 function transformRequestAsForm(data, getHeaders) {
     function rfc3986 (str) {
         return str.replace(/[!'()*]/g, function (c) {
@@ -123,25 +159,24 @@ function transformRequestAsForm(data, getHeaders) {
     }
     var headers = getHeaders();
     headers[ 'Content-Type' ] = 'application/x-www-form-urlencoded; charset=utf-8';
-
-    // If this is not an object, defer to native stringification.
-    if (!angular.isObject(data)) {
-        return ((data === null) ? '' : data.toString());
+    if (!isObject(data)) {
+        return (isNullOrUndefined(data) ? '' : data.toString());
     }
 
     var buffer = [];
-
     // Serialize each key in the object.
-    angular.forEach(data, function (value, key) {
-        if (value === null) {
-            value = '';
-        } else if (angular.isObject(value)) {
-            value = angular.toJson(value);
+    for (var key in data) {
+        if (!data.hasOwnProperty(key)) {
+            continue;
         }
-        buffer.push(encodeURIComponent(key) + '=' + encodeURIComponent((value === null) ? '' : value));
-    });
-
-    // Serialize the buffer and clean it up for transportation.
+        var value = data[key];
+        if (isNullOrUndefined(value)) {
+            value = '';
+        } else if (isObject(value)) {
+            value = toJson(value);
+        }
+        buffer.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+    }
 
     var encodedStr = buffer.join('&').replace(/%20/g, '+');
     return rfc3986(encodedStr);
