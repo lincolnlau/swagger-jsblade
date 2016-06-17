@@ -5,12 +5,12 @@
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
-var app = angular.module('$${config.apiName}Module', []);
+angular.module('$${config.apiName}Module', [])
 
 /*
 * 外部暴露使用的API
 * */
-app.factory('$${config.apiName}', ['$http', '$q', function ($http, $q) {
+.factory('$${config.apiName}', ['$http', '$q', function ($http, $q) {
     var urlPre = '$${swagger.urlPre}';
     return {
     {@each swagger.paths as path,index}

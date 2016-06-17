@@ -5,14 +5,12 @@
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
-var app = angular.module('$${config.apiName}Module', [
-    'ngResource'
-]);
+angular.module('$${config.apiName}Module', ['ngResource'])
 
 /*
 * 外部暴露使用的API
 * */
-app.factory('$${config.apiName}', ['__$${config.apiName}__', '$q', function (innerApi, $q) {
+.factory('$${config.apiName}', ['__$${config.apiName}__', '$q', function (innerApi, $q) {
     return {
     {@each swagger.paths as path,index}
         {@each path as req,key}
@@ -46,35 +44,12 @@ app.factory('$${config.apiName}', ['__$${config.apiName}__', '$q', function (inn
         {@/each}
     {@/each}
     };
-}]);
-
-/*
-* 生成objParam
-* */
-function getObjParam (tempObj) {
-    var objParam = {};
-    var form = tempObj.form;
-    var body = tempObj.body;
-    var headers = tempObj.headers;
-
-    if (Object.keys(form).length > 0) {
-        objParam = form;
-    } else {
-        objParam = body;
-    }
-    if (Object.keys(headers).length > 0) {
-        objParam = {
-            headers: headers,
-            other: objParam
-        };
-    }
-    return objParam;
-}
+}])
 
 /*
  * 内部调用API
  * */
-app.factory('__$${config.apiName}__', ['$resource', function ($resource) {
+.factory('__$${config.apiName}__', ['$resource', function ($resource) {
     var urlPre = '$${swagger.urlPre}';
     return $resource('', {}, {
 {@each swagger.paths as path,index}
@@ -119,6 +94,29 @@ app.factory('__$${config.apiName}__', ['$resource', function ($resource) {
 {@/each}
     });
 }]);
+
+/*
+ * 生成objParam
+ * */
+function getObjParam (tempObj) {
+    var objParam = {};
+    var form = tempObj.form;
+    var body = tempObj.body;
+    var headers = tempObj.headers;
+
+    if (Object.keys(form).length > 0) {
+        objParam = form;
+    } else {
+        objParam = body;
+    }
+    if (Object.keys(headers).length > 0) {
+        objParam = {
+            headers: headers,
+            other: objParam
+        };
+    }
+    return objParam;
+}
 
 /*
  * toJsonReplacer
