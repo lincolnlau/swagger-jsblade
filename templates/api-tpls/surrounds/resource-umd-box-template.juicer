@@ -1,0 +1,28 @@
+/**
+ * 标题：          $${swagger.info.title}
+ * 版本：          $${swagger.info.version}
+ * 描述：          $${swagger.info.description}
+ * 时间：          $${config.createTime}
+ * swagger版本：   $${swagger.swagger}
+ */
+
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD 格式
+        define([
+            'angular',
+            'angular-resource'
+        ], factory);
+    } else if (typeof exports === 'object') {
+        // CommonJs 格式
+        var angular = require('angular');
+        require('angular-resource');
+        module.exports = factory(angular);
+    } else {
+        // 挂载到浏览器 window 下
+        //root.$${config.apiName} = factory(root.angular);
+        throw new Error('angular风格模块不支持全局API调用!');
+    }
+}(this, function (angular) {
+// 子模板替换位置
+}));
