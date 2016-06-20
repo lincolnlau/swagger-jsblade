@@ -40,7 +40,7 @@ $${config.apiName}.prototype.$${req.fnName} = function (paramObj, success, error
         {@/each}
         lackParam(reject, paramArr, paramObj, error);
         var options = {
-            url: self.urlPre + '$${swagger.pathsUrl[index]}',
+            url: self.urlPre + '$${index}',
             {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
             method: '$${key}'
         };
@@ -58,9 +58,15 @@ $${config.apiName}.prototype.$${req.fnName} = function (paramObj, success, error
 * 发送请求
 * */
 function sendReq (resolve, reject, options, success, error) {
-    superagent(options.method, options.url)
+    var params = options.params;
+    var url = options.url;
+    // 处理restful风格参数
+    url = url.replace(/\{([^\{\}]+)\}/g, function (s1, s2) {
+        return params[s2] || '';
+    });
+    superagent(options.method, url)
         {@if config.withCredentials}.withCredentials(){@/if}
-        .query(options.params)
+        .query(params)
         .set(options.headers || {})
         .send(options.data)
         .end(function(err, res){
