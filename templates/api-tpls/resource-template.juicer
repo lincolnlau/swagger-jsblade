@@ -10,89 +10,100 @@
 /*
 * 外部暴露使用的API
 * */
-.factory('$${config.apiName}', ['__$${config.apiName}__', '$q', function (innerApi, $q) {
-    return {
+.factory('$${config.apiName}', ['__$${config.apiName}__', '$q', function (InnerApi, $q) {
+    var domain = '$${swagger.domain}';
+    var basePathNew = '$${swagger.basePathNew}';
+    var innerApi = null;
+    function $${config.apiName} (options) {
+        var domainNew = (isObject(options)) ? options.domain : options;
+        domain = (typeof domainNew === 'string') ? domainNew : domain;
+        var urlPre = domain + basePathNew;
+        innerApi = new InnerApi(urlPre);
+    }
+
+
     {@each swagger.paths as path,index}
         {@each path as req,key}
-        /*
-         * $${req.description}
-         {@each req.parameters as parameter,pIndex}
-         * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
-         {@/each}
-         * */
-        $${req.fnName}: function (paramObj, success, error) {
-            if (!angular.isObject(paramObj)) {
-                paramObj = {};
-            }
-            var deferred = $q.defer();
-            var paramArr = [];
-            {@each req.parameters as parameter,pIndex}
-            paramArr.push({
-                name: '$${parameter.name}',
-                required: {@if parameter.required}true{@else}false{@/if},
-                localIn: '$${parameter.in}'
-            });
-            {@/each}
-            if (lackParam(deferred, paramArr, paramObj, error)) {
-                return deferred.promise;
-            }
-            var tempObj = getParams (paramArr, paramObj);
-            var urlParam = tempObj.urlParam;
-            var objParam = getObjParam (tempObj);
-            return innerApi.$${req.fnName}(urlParam, objParam, success, error).$promise;
-        }{@if !req.lastOneReq},{@/if}
+    /*
+     * $${req.description}
+     {@each req.parameters as parameter,pIndex}
+     * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
+     {@/each}
+     * */
+    $${config.apiName}.prototype.$${req.fnName} = function (paramObj, success, error) {
+        if (!angular.isObject(paramObj)) {
+            paramObj = {};
+        }
+        var deferred = $q.defer();
+        var paramArr = [];
+        {@each req.parameters as parameter,pIndex}
+        paramArr.push({
+            name: '$${parameter.name}',
+            required: {@if parameter.required}true{@else}false{@/if},
+            localIn: '$${parameter.in}'
+        });
+        {@/each}
+        if (lackParam(deferred, paramArr, paramObj, error)) {
+            return deferred.promise;
+        }
+        var tempObj = getParams (paramArr, paramObj);
+        var urlParam = tempObj.urlParam;
+        var objParam = getObjParam (tempObj);
+        return innerApi.$${req.fnName}(urlParam, objParam, success, error).$promise;
+    };
         {@/each}
     {@/each}
-    };
+    return $${config.apiName};
 }])
 
 /*
  * 内部调用API
  * */
 .factory('__$${config.apiName}__', ['$resource', function ($resource) {
-    var urlPre = '$${swagger.urlPre}';
-    return $resource('', {}, {
-{@each swagger.paths as path,index}
-    {@each path as req,key}
-        /*
-         * $${req.description}
-         * */
-        $${req.fnName}: {
-            url: urlPre + '$${swagger.pathsUrl[index]}',{@if req.headerStr}
-            headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
-        {@if req.hasInHeader || req.transformRequestAsForm}
-            transformRequest: [
-                {@if req.hasInHeader}
-                function (objParam, headersGetter) {
-                    var headers = headersGetter();
-                    var temp;
-                    var data = objParam.headers;
-                    Object.keys(data).forEach(function (key, index) {
-                        temp = data[key];
-                        if (!isNullOrUndefined(temp)) {
-                            headers[key] = temp;
-                        }
-                    });
-                    {@if req.transformRequestAsForm}
-                    return objParam.other;
-                    {@else}
-                    return angular.toJson(objParam.other);
+    return function (urlPre) {
+        return $resource('', {}, {
+    {@each swagger.paths as path,index}
+        {@each path as req,key}
+            /*
+             * $${req.description}
+             * */
+            $${req.fnName}: {
+                url: urlPre + '$${swagger.pathsUrl[index]}',{@if req.headerStr}
+                headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
+            {@if req.hasInHeader || req.transformRequestAsForm}
+                transformRequest: [
+                    {@if req.hasInHeader}
+                    function (objParam, headersGetter) {
+                        var headers = headersGetter();
+                        var temp;
+                        var data = objParam.headers;
+                        Object.keys(data).forEach(function (key, index) {
+                            temp = data[key];
+                            if (!isNullOrUndefined(temp)) {
+                                headers[key] = temp;
+                            }
+                        });
+                        {@if req.transformRequestAsForm}
+                        return objParam.other;
+                        {@else}
+                        return angular.toJson(objParam.other);
+                        {@/if}
+                    }{@/if}{@if req.transformRequestAsForm}{@if req.hasInHeader},
+                        {@/if}
+                        {@if req.transformRequestFormData}
+                    transformRequestFormData
+                        {@else}
+                    transformRequestAsForm
+                        {@/if}
                     {@/if}
-                }{@/if}{@if req.transformRequestAsForm}{@if req.hasInHeader},
-                    {@/if}
-                    {@if req.transformRequestFormData}
-                transformRequestFormData
-                    {@else}
-                transformRequestAsForm
-                    {@/if}
-                {@/if}
-            ],
-        {@/if}
-            method: '$${key}'
-        }{@if !req.lastOneReq},{@/if}
+                ],
+            {@/if}
+                method: '$${key}'
+            }{@if !req.lastOneReq},{@/if}
+        {@/each}
     {@/each}
-{@/each}
-    });
+        });
+    };
 }]);
 
 /*
