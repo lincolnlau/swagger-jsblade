@@ -1,0 +1,24 @@
+/**
+ * 标题：          $${swagger.info.title}
+ * 版本：          $${swagger.info.version}
+ * 描述：          $${swagger.info.description}
+ * 时间：          $${config.createTime}
+ * swagger版本：   $${swagger.swagger}
+ */
+
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD 格式
+        define([
+            'superagent'
+        ], factory);
+    } else if (typeof exports === 'object') {
+        // CommonJs 格式
+        module.exports = factory(require('superagent'));
+    } else {
+        // 挂载到浏览器 window 下
+        root.$${config.apiName} = factory(root.superagent);
+    }
+}(this, function (superagent) {
+// 子模板替换位置
+}));

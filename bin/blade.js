@@ -21,7 +21,9 @@ app
     .description('创建一个api接口集合')
     .option('-n, --ngHttp', "$http类型")
     .option('-r, --resource', "angular-resource类型")
-    .option('-s, --surround <mode>', "包围模式 ,将生成的代码包含在UMD-1 AMD-2 CommonJS-3 或 闭包-其他值 中")
+    .option('-s, --superagent', "superagent类型")
+    .option('-S, --surround <mode>', "包围模式 ,将生成的代码包含在UMD-1 AMD-2 CommonJS-3 或 闭包-其他值 中")
+    .option('-w, --withCredentials', "支持跨域传cookie")
     .option('<apiName> <swaggerFile> <toPath>', "必填:<api名称> <sawagger文件位置,支持本地和线上> <输出文件位置>")
     .action(execute(codegen.create));
 

@@ -6,9 +6,6 @@
  * swagger版本：   $${swagger.swagger}
  */
 
-var angular = require('angular');
-require('angular-resource');
-
-module.exports = (function () {
+(function () {
 // 子模板替换位置
 })();

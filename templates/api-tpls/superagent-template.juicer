@@ -5,33 +5,31 @@
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
-{@/if}{@if config.surroundMode}    {@/if}angular.module('$${config.apiName}Module', [])
+{@/if}{@if config.surroundMode}    {@/if}var domain = '$${swagger.domain}';
+var basePathNew = '$${swagger.basePathNew}';
+function $${config.apiName} (options) {
+    var domainNew = (isObject(options)) ? options.domain : options;
+    domain = (typeof domainNew === 'string') ? domainNew : domain;
+    this.urlPre = domain + basePathNew;
+}
 
+{@each swagger.paths as path,index}
+    {@each path as req,key}
 /*
-* 外部暴露使用的API
-* */
-.factory('$${config.apiName}', ['$http', '$q', function ($http, $q) {
-    var domain = '$${swagger.domain}';
-    var basePathNew = '$${swagger.basePathNew}';
-    function $${config.apiName} (options) {
-        var domainNew = (isObject(options)) ? options.domain : options;
-        domain = (typeof domainNew === 'string') ? domainNew : domain;
-        this.urlPre = domain + basePathNew;
+ * $${req.description}
+ {@each req.parameters as parameter,pIndex}
+ * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
+ {@/each}
+ * */
+$${config.apiName}.prototype.$${req.fnName} = function (paramObj, success, error) {
+    if (!angular.isObject(paramObj)) {
+        paramObj = {};
     }
-
-    {@each swagger.paths as path,index}
-        {@each path as req,key}
-    /*
-     * $${req.description}
-     {@each req.parameters as parameter,pIndex}
-     * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
-     {@/each}
-     * */
-    $${config.apiName}.prototype.$${req.fnName} = function (paramObj, success, error) {
-        if (!angular.isObject(paramObj)) {
-            paramObj = {};
-        }
-        var deferred = $q.defer();
+    if (!Promise) {
+        throw new Error('需要Promise,请加入Promise依赖!');
+    }
+    var self = this;
+    return new Promise(function (resolve, reject) {
         var paramArr = [];
         {@each req.parameters as parameter,pIndex}
         paramArr.push({
@@ -40,11 +38,9 @@
             localIn: '$${parameter.in}'
         });
         {@/each}
-        if (lackParam(deferred.reject, paramArr, paramObj, error)) {
-            return deferred.promise;
-        }
+        lackParam(reject, paramArr, paramObj, error);
         var options = {
-            url: this.urlPre + '$${swagger.pathsUrl[index]}',
+            url: self.urlPre + '$${swagger.pathsUrl[index]}',
             {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
             method: '$${key}'
         };
@@ -52,37 +48,40 @@
     {@if req.transformRequestAsForm}
         options.transformRequest = {@if req.transformRequestFormData}transformRequestFormData{@else}transformRequestAsForm{@/if};
     {@/if}
-        sendReq ($http, deferred, options, success, error);
-        return deferred.promise;
-    };
-        {@/each}
+        sendReq (resolve, reject, options, success, error);
+    });
+};
     {@/each}
-    return $${config.apiName};
-}]);
+{@/each}
 
 /*
 * 发送请求
 * */
-function sendReq ($http, deferred, options, success, error) {
-    {@if config.withCredentials}options.withCredentials = true;{@/if}
-    $http(options)
-        .success(function(data) {
-            if (angular.isFunction(success)) {
-                data = success(data);
+function sendReq (resolve, reject, options, success, error) {
+    superagent(options.method, options.url)
+        {@if config.withCredentials}.withCredentials(){@/if}
+        .query(options.params)
+        .set(options.headers || {})
+        .send(options.data)
+        .end(function(err, res){
+            if (!err && res.ok) {
+                var data = res.body;
+                if (isFunction(success)) {
+                    data = success(data);
+                }
+                resolve(data);
+            } else {
+                err = {
+                    status: err.status,
+                    headers: err.responseheaders.headers,
+                    config: err.responseheaders.req,
+                    message: err.message
+                };
+                if (isFunction(error)) {
+                    err = error(err);
+                }
+                reject(err);
             }
-            deferred.resolve(data);
-        })
-        .error(function(data, status, headers, config) {
-            var err = {
-                status: status,
-                headers: headers,
-                config: config,
-                message: data
-            };
-            if (angular.isFunction(error)) {
-                err = error(err);
-            }
-            deferred.reject(err);
         });
 }
 /*
@@ -135,3 +134,4 @@ function toJsonReplacer(key, value) {
 }
 
 {@include file://./common-fn-template.juicer, _}
+{@if config.surroundMode}return $${config.apiName};{@/if}

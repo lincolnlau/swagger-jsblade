@@ -6,9 +6,8 @@
  * swagger版本：   $${swagger.swagger}
  */
 
-var angular = require('angular');
-require('angular-resource');
-
-module.exports = (function () {
+define([
+    'superagent'
+], function (superagent) {
 // 子模板替换位置
-})();
+});

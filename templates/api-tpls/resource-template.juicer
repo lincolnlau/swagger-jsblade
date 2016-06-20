@@ -43,7 +43,7 @@
             localIn: '$${parameter.in}'
         });
         {@/each}
-        if (lackParam(deferred, paramArr, paramObj, error)) {
+        if (lackParam(deferred.reject, paramArr, paramObj, error)) {
             return deferred.promise;
         }
         var tempObj = getParams (paramArr, paramObj);
@@ -98,6 +98,7 @@
                     {@/if}
                 ],
             {@/if}
+                {@if config.withCredentials}withCredentials: true,{@/if}
                 method: '$${key}'
             }{@if !req.lastOneReq},{@/if}
         {@/each}

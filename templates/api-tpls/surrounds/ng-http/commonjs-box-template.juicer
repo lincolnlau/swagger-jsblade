@@ -8,6 +8,6 @@
 
 var angular = require('angular');
 
-module.exports = function () {
+module.exports = (function () {
 // 子模板替换位置
-};
+})();

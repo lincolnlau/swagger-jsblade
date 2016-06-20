@@ -72,7 +72,7 @@ function getParams (paramArr, paramObj) {
 /*
 * 必须参数校验
 * */
-function lackParam (deferred, paramArr, paramObj, error) {
+function lackParam (reject, paramArr, paramObj, error) {
     var key;
     var required;
     var lackArr = [];
@@ -88,7 +88,7 @@ function lackParam (deferred, paramArr, paramObj, error) {
         if (isFunction(error)) {
             err = error(err);
         }
-        deferred.reject(err);
+        reject(err);
         return true;
     } else {
         return false;
