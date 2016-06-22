@@ -17,14 +17,14 @@ app
   .action(execute(project.create));
 
 app
-    .command('api')
-    .description('创建一个api接口集合')
+    .command('api <apiName> <swaggerFile> <toPath>')
+    .description('创建一个api接口集合 必填:<api名称> <sawagger文件位置,支持本地和线上> <输出文件位置>')
     .option('-n, --ngHttp', "$http类型")
     .option('-r, --resource', "angular-resource类型")
     .option('-s, --superagent', "superagent类型")
-    .option('-S, --surround <mode>', "包围模式 ,将生成的代码包含在UMD-1 AMD-2 CommonJS-3 或 闭包-其他值 中")
+    .option('-S, --surround <mode>', "包围模式(-c时无效) ,将生成的代码包含在UMD-1 AMD-2 CommonJS-3 或 闭包-4 中")
+    .option('-c, --custom <tplPath>', "自定义模板")
     .option('-w, --withCredentials', "支持跨域传cookie")
-    .option('<apiName> <swaggerFile> <toPath>', "必填:<api名称> <sawagger文件位置,支持本地和线上> <输出文件位置>")
     .action(execute(codegen.create));
 
 app
