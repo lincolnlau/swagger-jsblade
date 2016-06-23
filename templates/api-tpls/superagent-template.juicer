@@ -22,7 +22,7 @@ function $${config.apiName} (options) {
  {@/each}
  * */
 $${config.apiName}.prototype.$${req.fnName} = function (paramObj, success, error) {
-    if (!angular.isObject(paramObj)) {
+    if (!isObject(paramObj)) {
         paramObj = {};
     }
     if (!Promise) {
