@@ -79,8 +79,8 @@ function sendReq (resolve, reject, options, success, error) {
             } else {
                 err = {
                     status: err.status,
-                    headers: err.responseheaders.headers,
-                    config: err.responseheaders.req,
+                    headers: err.response.headers,
+                    config: err.response.req,
                     message: err.message
                 };
                 if (isFunction(error)) {
