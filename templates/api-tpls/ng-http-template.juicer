@@ -5,75 +5,24 @@
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
-{@/if}{@if config.surroundMode}    {@/if}angular.module('$${config.apiName}Module', [])
-
+'use strict';
+{@/if}{@if config.surroundMode}    {@/if}{@include file://./common-fn-template.juicer, _}
 /*
-* 外部暴露使用的API
-* */
-.factory('$${config.apiName}', ['$http', '$q', function ($http, $q) {
-    var domain = '$${swagger.domain}';
-    var basePathNew = '$${swagger.basePathNew}';
-    function $${config.apiName} (options) {
-        var domainNew = (isObject(options)) ? options.domain : options;
-        domain = (typeof domainNew === 'string') ? domainNew : domain;
-        this.urlPre = domain + basePathNew;
-    }
-
-    {@each swagger.paths as path,index}
-        {@each path as req,key}
-    /*
-     * $${req.description}
-     {@each req.parameters as parameter,pIndex}
-     * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
-     {@/each}
-     * */
-    $${config.apiName}.prototype.$${req.fnName} = function (paramObj, success, error) {
-        if (!angular.isObject(paramObj)) {
-            paramObj = {};
-        }
-        var deferred = $q.defer();
-        var paramArr = [];
-        {@each req.parameters as parameter,pIndex}
-        paramArr.push({
-            name: '$${parameter.name}',
-            required: {@if parameter.required}true{@else}false{@/if},
-            localIn: '$${parameter.in}'
-        });
-        {@/each}
-        if (lackParam(deferred.reject, paramArr, paramObj, error)) {
-            return deferred.promise;
-        }
-        var options = {
-            url: this.urlPre + '$${swagger.pathsUrl[index]}',
-            {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
-            method: '$${key}'
-        };
-        options = getOptions (options, paramArr, paramObj);
-    {@if req.transformRequestAsForm}
-        options.transformRequest = {@if req.transformRequestFormData}transformRequestFormData{@else}transformRequestAsForm{@/if};
-    {@/if}
-        sendReq ($http, deferred, options, success, error);
-        return deferred.promise;
-    };
-        {@/each}
-    {@/each}
-    return $${config.apiName};
-}]);
-
-/*
-* 发送请求
-* */
-function sendReq ($http, deferred, options, success, error) {
+ * 发送请求
+ * */
+Utils.sendReq = function ($http, deferred, options, success, error) {
+    var err;
     {@if config.withCredentials}options.withCredentials = true;{@/if}
     $http(options)
-        .success(function(data) {
+        .success(function (_data) {
+            var data = _data;
             if (angular.isFunction(success)) {
                 data = success(data);
             }
             deferred.resolve(data);
         })
-        .error(function(data, status, headers, config) {
-            var err = {
+        .error(function (data, status, headers, config) {
+            err = {
                 status: status,
                 headers: headers,
                 config: config,
@@ -84,17 +33,18 @@ function sendReq ($http, deferred, options, success, error) {
             }
             deferred.reject(err);
         });
-}
+};
 /*
-* 生成options
-* */
-function getOptions (options, paramArr, paramObj) {
+ * 生成options
+ * */
+Utils.getOptions = function (options, paramArr, paramObj) {
     var objParam = {};
-    var tempObj = getParams (paramArr, paramObj);
+    var tempObj = Utils.getParams(paramArr, paramObj);
     var form = tempObj.form;
     var body = tempObj.body;
     var headers = tempObj.headers;
     var urlParam = tempObj.urlParam;
+    var headerKeys;
     if (Object.keys(form).length > 0) {
         objParam = form;
     } else {
@@ -103,35 +53,88 @@ function getOptions (options, paramArr, paramObj) {
     options.params = urlParam;
     options.data = objParam;
 
-    var headerKeys = Object.keys(headers);
+    headerKeys = Object.keys(headers);
     if (headerKeys.length > 0) {
-        var temp;
         options.headers = options.headers || {};
         headerKeys.forEach(function (key) {
-            temp = headers[key];
             options.headers[key] = headers[key];
         });
     }
     return options;
-}
+};
 
 /*
-* toJsonReplacer
-* */
-function toJsonReplacer(key, value) {
+ * toJsonReplacer
+ * */
+Utils.toJsonReplacer = function (key, value) {
     var val = value;
-
+    var undefinedValue;
     if (typeof key === 'string' && key.charAt(0) === '$' && key.charAt(1) === '$') {
-        val = undefined;
+        val = undefinedValue;
     } else if (value && value.window === value) {
         val = '$WINDOW';
-    } else if (value &&  window.document === value) {
+    } else if (value && window.document === value) {
         val = '$DOCUMENT';
     } else if (value && value.$evalAsync && value.$watch) {
         val = '$SCOPE';
     }
 
     return val;
-}
+};
 
-{@include file://./common-fn-template.juicer, _}
+angular.module('$${config.apiName}Module', [])
+
+/*
+* 外部暴露使用的API
+* */
+.factory('$${config.apiName}', ['$http', '$q', function ($http, $q) {
+    var domain = '$${swagger.domain}';
+    var basePathNew = '$${swagger.basePathNew}';
+    function $${config.apiName} (options) {
+        var domainNew = (angular.isObject(options)) ? options.domain : options;
+        domain = (typeof domainNew === 'string') ? domainNew : domain;
+        this.urlPre = domain + basePathNew;
+    }
+
+    {@each swagger.paths as path,index}
+        {@each path as req,key}
+    /*
+     * $${req.summary}
+     {@each req.parameters as parameter,pIndex}
+     * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
+     {@/each}
+     * */
+    $${config.apiName}.prototype.$${req.fnName} = function (_paramObj, success, error) {
+        var deferred = $q.defer();
+        var paramArr = [];
+        var paramObj = _paramObj;
+        var options;
+        if (!angular.isObject(paramObj)) {
+            paramObj = {};
+        }
+        {@each req.parameters as parameter,pIndex}
+        paramArr.push({
+            name: '$${parameter.name}',
+            required: {@if parameter.required}true{@else}false{@/if},
+            localIn: '$${parameter.in}'
+        });
+        {@/each}
+        if (Utils.lackParam(deferred.reject, paramArr, paramObj, error)) {
+            return deferred.promise;
+        }
+        options = {
+            url: this.urlPre + '$${swagger.pathsUrl[index]}',
+            {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
+            method: '$${key}'
+        };
+        options = Utils.getOptions(options, paramArr, paramObj);
+    {@if req.transformRequestAsForm}
+        options.transformRequest = {@if req.transformRequestFormData}Utils.transformRequestFormData{@else}Utils.transformRequestAsForm{@/if};
+    {@/if}
+        Utils.sendReq($http, deferred, options, success, error);
+        return deferred.promise;
+    };
+        {@/each}
+    {@/each}
+    return $${config.apiName};
+}]);

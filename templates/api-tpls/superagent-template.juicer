@@ -5,59 +5,12 @@
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
-{@/if}{@if config.surroundMode}    {@/if}var domain = '$${swagger.domain}';
-var basePathNew = '$${swagger.basePathNew}';
-function $${config.apiName} (options) {
-    var domainNew = (isObject(options)) ? options.domain : options;
-    domain = (typeof domainNew === 'string') ? domainNew : domain;
-    this.urlPre = domain + basePathNew;
-}
-
-{@each swagger.paths as path,index}
-    {@each path as req,key}
+'use strict';
+{@/if}{@if config.surroundMode}    {@/if}{@include file://./common-fn-template.juicer, _}
 /*
- * $${req.description}
- {@each req.parameters as parameter,pIndex}
- * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
- {@/each}
+ * 发送请求
  * */
-$${config.apiName}.prototype.$${req.fnName} = function (paramObj, success, error) {
-    if (!angular.isObject(paramObj)) {
-        paramObj = {};
-    }
-    if (!Promise) {
-        throw new Error('需要Promise,请加入Promise依赖!');
-    }
-    var self = this;
-    return new Promise(function (resolve, reject) {
-        var paramArr = [];
-        {@each req.parameters as parameter,pIndex}
-        paramArr.push({
-            name: '$${parameter.name}',
-            required: {@if parameter.required}true{@else}false{@/if},
-            localIn: '$${parameter.in}'
-        });
-        {@/each}
-        lackParam(reject, paramArr, paramObj, error);
-        var options = {
-            url: self.urlPre + '$${index}',
-            {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
-            method: '$${key}'
-        };
-        options = getOptions (options, paramArr, paramObj);
-    {@if req.transformRequestAsForm}
-        options.transformRequest = {@if req.transformRequestFormData}transformRequestFormData{@else}transformRequestAsForm{@/if};
-    {@/if}
-        sendReq (resolve, reject, options, success, error);
-    });
-};
-    {@/each}
-{@/each}
-
-/*
-* 发送请求
-* */
-function sendReq (resolve, reject, options, success, error) {
+Utils.sendReq = function (resolve, reject, options, success, error) {
     var params = options.params;
     var url = options.url;
     // 处理restful风格参数
@@ -65,41 +18,44 @@ function sendReq (resolve, reject, options, success, error) {
         return params[s2] || '';
     });
     superagent(options.method, url)
-        {@if config.withCredentials}.withCredentials(){@/if}
+    {@if config.withCredentials}.withCredentials(){@/if}
         .query(params)
         .set(options.headers || {})
         .send(options.data)
-        .end(function(err, res){
+        .end(function (_err, res) {
+            var data;
+            var err = _err;
             if (!err && res.ok) {
-                var data = res.body;
-                if (isFunction(success)) {
+                data = res.body;
+                if (Utils.isFunction(success)) {
                     data = success(data);
                 }
                 resolve(data);
             } else {
                 err = {
                     status: err.status,
-                    headers: err.responseheaders.headers,
-                    config: err.responseheaders.req,
+                    headers: err.response.headers,
+                    config: err.response.req,
                     message: err.message
                 };
-                if (isFunction(error)) {
+                if (Utils.isFunction(error)) {
                     err = error(err);
                 }
                 reject(err);
             }
         });
-}
+};
 /*
-* 生成options
-* */
-function getOptions (options, paramArr, paramObj) {
+ * 生成options
+ * */
+Utils.getOptions = function (options, paramArr, paramObj) {
     var objParam = {};
-    var tempObj = getParams (paramArr, paramObj);
+    var tempObj = Utils.getParams(paramArr, paramObj);
     var form = tempObj.form;
     var body = tempObj.body;
     var headers = tempObj.headers;
     var urlParam = tempObj.urlParam;
+    var headerKeys;
     if (Object.keys(form).length > 0) {
         objParam = form;
     } else {
@@ -108,36 +64,87 @@ function getOptions (options, paramArr, paramObj) {
     options.params = urlParam;
     options.data = objParam;
 
-    var headerKeys = Object.keys(headers);
+    headerKeys = Object.keys(headers);
     if (headerKeys.length > 0) {
-        var temp;
         options.headers = options.headers || {};
         headerKeys.forEach(function (key) {
-            temp = headers[key];
             options.headers[key] = headers[key];
         });
     }
     return options;
-}
+};
 
 /*
-* toJsonReplacer
-* */
-function toJsonReplacer(key, value) {
+ * toJsonReplacer
+ * */
+Utils.toJsonReplacer = function (key, value) {
     var val = value;
-
+    var undefinedValue;
     if (typeof key === 'string' && key.charAt(0) === '$' && key.charAt(1) === '$') {
-        val = undefined;
+        val = undefinedValue;
     } else if (value && value.window === value) {
         val = '$WINDOW';
-    } else if (value &&  window.document === value) {
+    } else if (value && window.document === value) {
         val = '$DOCUMENT';
     } else if (value && value.$evalAsync && value.$watch) {
         val = '$SCOPE';
     }
 
     return val;
+};
+
+function $${config.apiName} (options) {
+    var domain = '$${swagger.domain}';
+    var basePathNew = '$${swagger.basePathNew}';
+    var domainNew = (Utils.isObject(options)) ? options.domain : options;
+    domain = (typeof domainNew === 'string') ? domainNew : domain;
+    this.urlPre = domain + basePathNew;
 }
 
-{@include file://./common-fn-template.juicer, _}
+{@each swagger.paths as path,index}
+    {@each path as req,key}
+/*
+ * $${req.summary}
+ {@each req.parameters as parameter,pIndex}
+ * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
+ {@/each}
+ * */
+$${config.apiName}.prototype.$${req.fnName} = function (_paramObj, success, error) {
+    var paramObj = _paramObj;
+    var self = this;
+    if (!Utils.isObject(paramObj)) {
+        paramObj = {};
+    }
+    if (!Promise) {
+        throw new Error('需要Promise,请加入Promise依赖!');
+    }
+    return new Promise(function (resolve, reject) {
+        var paramArr = [];
+        var options;
+        {@each req.parameters as parameter,pIndex}
+        paramArr.push({
+            name: '$${parameter.name}',
+            required: {@if parameter.required}true{@else}false{@/if},
+            localIn: '$${parameter.in}'
+        });
+        {@/each}
+        Utils.lackParam(reject, paramArr, paramObj, error);
+        options = {
+            url: self.urlPre + '$${index}',
+            {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
+            method: '$${key}'
+        };
+        options = Utils.getOptions(options, paramArr, paramObj);
+    {@if req.transformRequestAsForm}
+        options.transformRequest = {@if req.transformRequestFormData}Utils.transformRequestFormData{@else}Utils.transformRequestAsForm{@/if};
+    {@/if}
+        Utils.sendReq(resolve, reject, options, success, error);
+    });
+};
+    {@/each}
+{@/each}
+
+
+
+
 {@if config.surroundMode}return $${config.apiName};{@/if}

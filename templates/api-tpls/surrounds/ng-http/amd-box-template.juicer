@@ -5,7 +5,7 @@
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
-
+'use strict';
 define([
     'angular'
 ], function (angular) {
