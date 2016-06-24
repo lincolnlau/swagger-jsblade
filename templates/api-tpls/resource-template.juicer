@@ -5,112 +5,12 @@
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
-{@/if}{@if config.surroundMode}    {@/if}angular.module('$${config.apiName}Module', ['ngResource'])
-
-/*
-* 外部暴露使用的API
-* */
-.factory('$${config.apiName}', ['__$${config.apiName}__', '$q', function (InnerApi, $q) {
-    var domain = '$${swagger.domain}';
-    var basePathNew = '$${swagger.basePathNew}';
-    var innerApi = null;
-    function $${config.apiName} (options) {
-        var domainNew = (isObject(options)) ? options.domain : options;
-        domain = (typeof domainNew === 'string') ? domainNew : domain;
-        var urlPre = domain + basePathNew;
-        innerApi = new InnerApi(urlPre);
-    }
-
-
-    {@each swagger.paths as path,index}
-        {@each path as req,key}
-    /*
-     * $${req.description}
-     {@each req.parameters as parameter,pIndex}
-     * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
-     {@/each}
-     * */
-    $${config.apiName}.prototype.$${req.fnName} = function (paramObj, success, error) {
-        if (!angular.isObject(paramObj)) {
-            paramObj = {};
-        }
-        var deferred = $q.defer();
-        var paramArr = [];
-        {@each req.parameters as parameter,pIndex}
-        paramArr.push({
-            name: '$${parameter.name}',
-            required: {@if parameter.required}true{@else}false{@/if},
-            localIn: '$${parameter.in}'
-        });
-        {@/each}
-        if (lackParam(deferred.reject, paramArr, paramObj, error)) {
-            return deferred.promise;
-        }
-        var tempObj = getParams (paramArr, paramObj);
-        var urlParam = tempObj.urlParam;
-        var objParam = getObjParam (tempObj);
-        return innerApi.$${req.fnName}(urlParam, objParam, success, error).$promise;
-    };
-        {@/each}
-    {@/each}
-    return $${config.apiName};
-}])
-
-/*
- * 内部调用API
- * */
-.factory('__$${config.apiName}__', ['$resource', function ($resource) {
-    return function (urlPre) {
-        return $resource('', {}, {
-    {@each swagger.paths as path,index}
-        {@each path as req,key}
-            /*
-             * $${req.description}
-             * */
-            $${req.fnName}: {
-                url: urlPre + '$${swagger.pathsUrl[index]}',{@if req.headerStr}
-                headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
-            {@if req.hasInHeader || req.transformRequestAsForm}
-                transformRequest: [
-                    {@if req.hasInHeader}
-                    function (objParam, headersGetter) {
-                        var headers = headersGetter();
-                        var temp;
-                        var data = objParam.headers;
-                        Object.keys(data).forEach(function (key, index) {
-                            temp = data[key];
-                            if (!isNullOrUndefined(temp)) {
-                                headers[key] = temp;
-                            }
-                        });
-                        {@if req.transformRequestAsForm}
-                        return objParam.other;
-                        {@else}
-                        return angular.toJson(objParam.other);
-                        {@/if}
-                    }{@/if}{@if req.transformRequestAsForm}{@if req.hasInHeader},
-                        {@/if}
-                        {@if req.transformRequestFormData}
-                    transformRequestFormData
-                        {@else}
-                    transformRequestAsForm
-                        {@/if}
-                    {@/if}
-                ],
-            {@/if}
-                {@if config.withCredentials}withCredentials: true,{@/if}
-                method: '$${key}'
-            }{@if !req.lastOneReq},{@/if}
-        {@/each}
-    {@/each}
-        });
-    };
-}]);
-
+'use strict';
+{@/if}{@if config.surroundMode}    {@/if}{@include file://./common-fn-template.juicer, _}
 /*
  * 生成objParam
  * */
-function getObjParam (tempObj) {
+Utils.getObjParam = function (tempObj) {
     var objParam = {};
     var form = tempObj.form;
     var body = tempObj.body;
@@ -128,25 +28,128 @@ function getObjParam (tempObj) {
         };
     }
     return objParam;
-}
+};
 
 /*
  * toJsonReplacer
  * */
-function toJsonReplacer(key, value) {
+Utils.toJsonReplacer = function (key, value) {
     var val = value;
-
+    var undefinedValue;
     if (typeof key === 'string' && key.charAt(0) === '$' && key.charAt(1) === '$') {
-        val = undefined;
+        val = undefinedValue;
     } else if (value && value.window === value) {
         val = '$WINDOW';
-    } else if (value &&  window.document === value) {
+    } else if (value && window.document === value) {
         val = '$DOCUMENT';
     } else if (value && value.$evalAsync && value.$watch) {
         val = '$SCOPE';
     }
 
     return val;
-}
+};
 
-{@include file://./common-fn-template.juicer, _}
+angular.module('$${config.apiName}Module', ['ngResource'])
+
+/*
+* 外部暴露使用的API
+* */
+.factory('$${config.apiName}', ['__$${config.apiName}__', '$q', function (InnerApi, $q) {
+    var domain = '$${swagger.domain}';
+    var basePathNew = '$${swagger.basePathNew}';
+    var innerApi = null;
+    function $${config.apiName} (options) {
+        var domainNew = (angular.isObject(options)) ? options.domain : options;
+        domain = (typeof domainNew === 'string') ? domainNew : domain;
+        innerApi = new InnerApi(domain + basePathNew);
+    }
+
+
+    {@each swagger.paths as path,index}
+        {@each path as req,key}
+    /*
+     * $${req.summary}
+     {@each req.parameters as parameter,pIndex}
+     * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
+     {@/each}
+     * */
+    $${config.apiName}.prototype.$${req.fnName} = function (_paramObj, success, error) {
+        var deferred = $q.defer();
+        var paramArr = [];
+        var paramObj = _paramObj;
+        var tempObj;
+        var urlParam;
+        var objParam;
+        if (!angular.isObject(paramObj)) {
+            paramObj = {};
+        }
+        {@each req.parameters as parameter,pIndex}
+        paramArr.push({
+            name: '$${parameter.name}',
+            required: {@if parameter.required}true{@else}false{@/if},
+            localIn: '$${parameter.in}'
+        });
+        {@/each}
+        if (Utils.lackParam(deferred.reject, paramArr, paramObj, error)) {
+            return deferred.promise;
+        }
+        tempObj = Utils.getParams(paramArr, paramObj);
+        urlParam = tempObj.urlParam;
+        objParam = Utils.getObjParam(tempObj);
+        return innerApi.$${req.fnName}(urlParam, objParam, success, error).$promise;
+    };
+        {@/each}
+    {@/each}
+    return $${config.apiName};
+}])
+
+/*
+ * 内部调用API
+ * */
+.factory('__$${config.apiName}__', ['$resource', function ($resource) {
+    return function (urlPre) {
+        return $resource('', {}, {
+    {@each swagger.paths as path,index}
+        {@each path as req,key}
+            /*
+             * $${req.summary}
+             * */
+            $${req.fnName}: {
+                url: urlPre + '$${swagger.pathsUrl[index]}',{@if req.headerStr}
+                headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
+            {@if req.hasInHeader || req.transformRequestAsForm}
+                transformRequest: [
+                    {@if req.hasInHeader}
+                    function (objParam, headersGetter) {
+                        var headers = headersGetter();
+                        var temp;
+                        var data = objParam.headers;
+                        Object.keys(data).forEach(function (key, index) {
+                            temp = data[key];
+                            if (!Utils.isNullOrUndefined(temp)) {
+                                headers[key] = temp;
+                            }
+                        });
+                        {@if req.transformRequestAsForm}
+                        return objParam.other;
+                        {@else}
+                        return angular.toJson(objParam.other);
+                        {@/if}
+                    }{@/if}{@if req.transformRequestAsForm}{@if req.hasInHeader},
+                        {@/if}
+                        {@if req.transformRequestFormData}
+                    Utils.transformRequestFormData
+                        {@else}
+                    Utils.transformRequestAsForm
+                        {@/if}
+                    {@/if}
+                ],
+            {@/if}
+                {@if config.withCredentials}withCredentials: true,{@/if}
+                method: '$${key}'
+            }{@if !req.lastOneReq},{@/if}
+        {@/each}
+    {@/each}
+        });
+    };
+}]);

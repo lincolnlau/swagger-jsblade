@@ -18,7 +18,7 @@ app
 
 app
     .command('api <apiName> <swaggerFile> <toPath>')
-    .description('创建一个api接口集合 必填:<api名称> <sawagger文件位置,支持本地和线上> <输出文件位置>')
+    .description('创建一个api接口集合 必填:<api名称> <swagger文件位置,支持本地和线上> <输出文件位置>')
     .option('-n, --ngHttp', "$http类型")
     .option('-r, --resource', "angular-resource类型")
     .option('-s, --superagent', "superagent类型")
