@@ -32,6 +32,9 @@ Utils.sendReq = function (resolve, reject, options, success, error) {
                 }
                 resolve(data);
             } else {
+                if (!err.response) {
+                    err.response = {};
+                }
                 err = {
                     status: err.status,
                     headers: err.response.headers,
