@@ -28,10 +28,11 @@ app
     .action(execute(codegen.create));
 
 app
-.command('mock [name]')
-.description('创建一个API Mock server')
-.option('<swaggerFile>', "angular-resource类型")
-.action(execute(mock.create));
+    .command('mock <swaggerFile>')
+    .description('生成含有mock数据的swagger文件 必填:<swagger文件位置,本地或线上yaml或JSON格式文件> <输出JSON文件位置及名称>')
+    .option('-f, --file <filePath>', "生成mock file")
+    .option('-s, --server [portNum]', "启动mock server,端口号,默认8000")
+    .action(execute(mock.create));
 
 app.parse(process.argv);
 cli.validate(app);
