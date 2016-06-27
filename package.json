@@ -21,12 +21,15 @@
     "commander": "^2.9.0",
     "debug": "^2.2.0",
     "events": "^1.1.0",
+    "express": "^4.14.0",
     "fs-extra": "^0.30.0",
     "inquirer": "^1.0.2",
     "juicer-express-adapter": "^0.1.10",
     "lodash": "^4.13.1",
     "path": "^0.12.7",
-    "request-sync-win": "0.0.2"
+    "request-sync-win": "0.0.2",
+    "swagger-express-middleware-with-chance": "^1.0.10",
+    "swagger-mock-file-generator": "^1.0.2"
   },
   "bin": {
     "blade": "bin/blade.js"
