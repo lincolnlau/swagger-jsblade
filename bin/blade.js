@@ -9,6 +9,10 @@ var mock = require('../lib/commands/mock');
 var frameworks = Object.keys(project.frameworks).join('|');
 var cli = require('../lib/util/cli');
 var execute = cli.execute;
+var appInfo = require('./../package.json');
+
+app
+    .version(appInfo.version);
 
 app
   .command('create [name]')
