@@ -5,6 +5,7 @@
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
+/*eslint-disable */
 'use strict';
 define([
     'angular'
