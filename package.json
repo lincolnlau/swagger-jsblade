@@ -29,7 +29,7 @@
     "path": "^0.12.7",
     "request-sync-win": "0.0.2",
     "swagger-express-middleware-with-chance": "^1.0.11",
-    "swagger-mock-file-generator": "^1.0.4"
+    "swagger-mock-file-generator": "^1.0.5"
   },
   "bin": {
     "blade": "bin/blade.js"
