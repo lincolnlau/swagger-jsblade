@@ -16,7 +16,7 @@ Utils.sendReq = function (resolve, reject, options, success, error) {
     var url = options.url;
     // 处理restful风格参数
     url = url.replace(/\{([^\{\}]+)\}/g, function (s1, s2) {
-        return params[s2] || '';
+        return params[s2];
     });
     superagent(options.method, url)
     {@if config.withCredentials}.withCredentials(){@/if}

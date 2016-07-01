@@ -13,6 +13,13 @@
  * */
 Utils.sendReq = function ($http, deferred, options, success, error) {
     var err;
+    var params = options.params;
+    var url = options.url;
+    // 处理restful风格参数
+    url = url.replace(/\{([^\{\}]+)\}/g, function (s1, s2) {
+        return params[s2];
+    });
+    options.url = url;
     {@if config.withCredentials}options.withCredentials = true;{@/if}
     $http(options)
         .success(function (_data) {
@@ -124,7 +131,7 @@ angular.module('$${config.apiName}Module', [])
             return deferred.promise;
         }
         options = {
-            url: this.urlPre + '$${swagger.pathsUrl[index]}',
+            url: this.urlPre + '$${index}',
             {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
             method: '$${key}'
         };
