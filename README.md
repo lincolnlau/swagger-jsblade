@@ -5,7 +5,7 @@
 
   Commands:
 
-    create [options] [name]                         创建一个文件夹包含一个前端项目
+    create [options] [name]     创建一个文件夹包含一个前端项目
           Usage: create [options] [name]
         
           创建一个文件夹包含一个前端项目
@@ -29,8 +29,9 @@
             -S, --surround <mode>   包围模式(-c时无效) ,将生成的代码包含在UMD-1 AMD-2 CommonJS-3 或 闭包-4 中
             -c, --custom <tplPath>  自定义模板
             -w, --withCredentials   支持跨域传cookie
+            -t, --tags <tagName>    按tag分组生成文件,(@)生成全部tag的, (@aaa@bbb)生成aaa和bbb的
 
-    mock [options] <swaggerFile>                    生成含有mock数据的swagger文件 必填:<swagger文件位置,本地或线上yaml或JSON格式文件> <输出JSON文件位置及名称>
+    mock [options] <swaggerFile>    生成含有mock数据的swagger文件 必填:<swagger文件位置,本地或线上yaml或JSON格式文件> <输出JSON文件位置及名称>
           Usage: mock [options] <swaggerFile>
         
           生成含有mock数据的swagger文件 必填:<swagger文件位置,本地或线上yaml或JSON格式文件> <输出JSON文件位置及名称>
