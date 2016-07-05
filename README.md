@@ -13,7 +13,7 @@
           Options:
         
             -h, --help                   output usage information
-            -f, --framework <framework>  angular1|angular2|vuejs 中的一个
+            -f, --framework <framework>  angular1|vue 中的一个
 
     api [options] <apiName> <swaggerFile> <toPath>  创建一个api接口集合 必填:<api名称> <swagger文件位置,支持本地和线上> <输出文件位置>
           Usage: api [options] <apiName> <swaggerFile> <toPath>
