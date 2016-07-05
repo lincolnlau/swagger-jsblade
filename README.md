@@ -1,4 +1,4 @@
-# swagger-jscodegen
+# swagger-jsblade
 ```
   Usage: blade [options] [command]
 
