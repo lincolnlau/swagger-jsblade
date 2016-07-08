@@ -29,6 +29,7 @@ app
     .option('-S, --surround <mode>', "包围模式(-c时无效) ,将生成的代码包含在UMD-1 AMD-2 CommonJS-3 或 闭包-4 中")
     .option('-c, --custom <tplPath>', "自定义模板")
     .option('-w, --withCredentials', "支持跨域传cookie")
+    .option('-t, --tags <tagName>', "按tag分组生成文件,(@)生成全部tag的, (@aaa@bbb)生成aaa和bbb的")
     .action(execute(codegen.create));
 
 app

@@ -1,11 +1,12 @@
-{@if !config.surroundMode}/**
+{@if !config.surroundMode}/*eslint-disable */
+/**
  * 标题：          $${swagger.info.title}
  * 版本：          $${swagger.info.version}
+ * 标签：          {@if config.tagName}$${config.tagName}{@else}全部tags{@/if}
  * 描述：          $${swagger.info.description}
  * 时间：          $${config.createTime}
  * swagger版本：   $${swagger.swagger}
  */
-/*eslint-disable */
 'use strict';
 {@/if}{@if config.surroundMode}    {@/if}{@include file://./common-fn-template.juicer, _}
 /*
