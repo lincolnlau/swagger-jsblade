@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start": "NODE_ENV=dev webpack-dev-server --config webpack.config.js --content-base src/ --progress --colors",
-    "build": "rm ./dist/*; webpack --config webpack.config.js --progress --colors -p"
+    "build": "rm ./dist/*; webpack --config webpack.config.js --progress --colors -p",
     "mock": "node mockServer.js"
   },
   "author": "",
