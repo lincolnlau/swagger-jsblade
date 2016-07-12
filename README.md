@@ -15,7 +15,7 @@
             -h, --help                   output usage information
             -f, --framework <framework>  angular1|vue 中的一个
 
-    api [options] <apiName> <swaggerFile> <toPath>  创建一个api接口集合 必填:<api名称> <swagger文件位置,支持本地和线上> <输出文件位置>
+    api [options] <apiName> <swaggerFile> <toPath> [outFileName]  创建一个api接口集合 必填:<api名称> <swagger文件位置,支持本地和线上> <输出文件位置> [输出文件名称]
           Usage: api [options] <apiName> <swaggerFile> <toPath>
         
           创建一个api接口集合 必填:<api名称> <swagger文件位置,支持本地和线上> <输出文件位置>
