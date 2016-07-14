@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
-    <img class="logo" src="./assets/logo.png">
-    <hello></hello>
+  <div id="hello">
+    <!--img class="logo" src="./assets/logo.png"-->
+    <h1>Hello Vue!</h1>
     <p>
       Welcome to your Vue.js app!
     </p>
@@ -19,46 +19,42 @@
       <a href="https://github.com/vuejs/vue-router/" target="_blank">vue-router</a> for routing and
       <a href="https://github.com/vuejs/vuex/" target="_blank">vuex</a> for state management.
     </p>
+    <router-view
+      class="view"
+      keep-alive
+      transition
+      transition-mode="out-in">
+    </router-view>
   </div>
 </template>
 
-<script>
-import Hello from './components/Hello'
-
-export default {
-  components: {
-    Hello
-  }
-}
-</script>
-
 <style>
-html {
-  height: 100%;
-}
+  html {
+    height: 100%;
+  }
 
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
 
-#app {
-  color: #2c3e50;
-  margin-top: -100px;
-  max-width: 600px;
-  font-family: Source Sans Pro, Helvetica, sans-serif;
-  text-align: center;
-}
+  #hello {
+    color: #2c3e50;
+    margin-top: -100px;
+    max-width: 600px;
+    font-family: Source Sans Pro, Helvetica, sans-serif;
+    text-align: center;
+  }
 
-#app a {
-  color: #42b983;
-  text-decoration: none;
-}
+  #hello a {
+    color: #42b983;
+    text-decoration: none;
+  }
 
-.logo {
-  width: 100px;
-  height: 100px
-}
+  .logo {
+    width: 100px;
+    height: 100px
+  }
 </style>
