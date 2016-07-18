@@ -1,7 +1,0 @@
-{@include file://./../../header-template.juicer, _}
-var angular = require('angular');
-require('angular-resource');
-
-module.exports = (function () {
-// 子模板替换位置
-})();

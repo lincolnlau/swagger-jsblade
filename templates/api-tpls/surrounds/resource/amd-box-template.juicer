@@ -1,7 +1,0 @@
-{@include file://./../../header-template.juicer, _}
-define([
-    'angular',
-    'angular-resource'
-], function (angular) {
-    // 子模板替换位置
-});

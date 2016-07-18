@@ -16,18 +16,17 @@
             -f, --framework <framework>  angular1|vue 中的一个
 
     api [options] <apiName> <swaggerFile> <toPath> [outFileName]  创建一个api接口集合 必填:<api名称> <swagger文件位置,支持本地和线上> <输出文件位置> [输出文件名称]
-          Usage: api [options] <apiName> <swaggerFile> <toPath>
+          Usage: api [options] <apiName> <swaggerFile> <toPath> [outFileName]
         
-          创建一个api接口集合 必填:<api名称> <swagger文件位置,支持本地和线上> <输出文件位置>
+          创建一个api接口集合
+          必填:<api名称> <swagger文件位置,支持本地和线上> <输出文件位置> [输出文件名称]
         
           Options:
         
             -h, --help              output usage information
-            -n, --ngHttp            $http类型
-            -r, --resource          angular-resource类型
-            -s, --superagent        superagent类型
-            -S, --surround <mode>   包围模式(-c时无效) ,将生成的代码包含在UMD-1 AMD-2 CommonJS-3 或 闭包-4 中
-            -c, --custom <tplPath>  自定义模板
+            -a, --ajax <type>       发送请求类型(-c时无效), n: $http类型, s: superagent类型
+            -s, --surround <mode>   包围模式(-c时无效), 将生成的代码包含在UMD-1 AMD-2 CommonJS-3 或 闭包-4 中
+            -c, --custom <tplPath>  自定义模板(优先级高于 -a和-s)
             -w, --withCredentials   支持跨域传cookie
             -t, --tags <tagName>    按tag分组生成文件,(@)生成全部tag的, (@aaa@bbb)生成aaa和bbb的
 
