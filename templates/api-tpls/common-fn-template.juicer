@@ -53,6 +53,7 @@ Utils.getParams = function (paramArr, paramObj) {
     var localIn;
     var temp;
     tempObj.urlParam = {};
+    tempObj.pathParam = {};
     tempObj.body = {};
     tempObj.form = {};
     tempObj.headers = {};
@@ -70,6 +71,9 @@ Utils.getParams = function (paramArr, paramObj) {
                     break;
                 case 'header':
                     tempObj.headers[key] = temp;
+                    break;
+                case 'path':
+                    tempObj.pathParam[key] = temp;
                     break;
                 default:
                     tempObj.urlParam[key] = temp;
@@ -204,4 +208,54 @@ Utils.transformRequestAsForm = function (data, getHeaders) {
 
     encodedStr = buffer.join('&').replace(/%20/g, '+');
     return rfc3986(encodedStr);
+};
+
+/*
+ * 生成options
+ * */
+Utils.getOptions = function (options, paramArr, paramObj) {
+    var objParam = {};
+    var tempObj = Utils.getParams(paramArr, paramObj);
+    var form = tempObj.form;
+    var body = tempObj.body;
+    var headers = tempObj.headers;
+    var urlParam = tempObj.urlParam;
+    var pathParam = tempObj.pathParam;
+    var headerKeys;
+    if (Object.keys(form).length > 0) {
+        objParam = form;
+    } else {
+        objParam = body;
+    }
+    options.params = urlParam;
+    options.data = objParam;
+    options.pathParam = pathParam;
+
+    headerKeys = Object.keys(headers);
+    if (headerKeys.length > 0) {
+        options.headers = options.headers || {};
+        headerKeys.forEach(function (key) {
+            options.headers[key] = headers[key];
+        });
+    }
+    return options;
+};
+
+/*
+ * toJsonReplacer
+ * */
+Utils.toJsonReplacer = function (key, value) {
+    var val = value;
+    var undefinedValue;
+    if (typeof key === 'string' && key.charAt(0) === '$' && key.charAt(1) === '$') {
+        val = undefinedValue;
+    } else if (value && value.window === value) {
+        val = '$WINDOW';
+    } else if (value && window.document === value) {
+        val = '$DOCUMENT';
+    } else if (value && value.$evalAsync && value.$watch) {
+        val = '$SCOPE';
+    }
+
+    return val;
 };
