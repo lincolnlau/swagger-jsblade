@@ -98,6 +98,8 @@ Utils.toJsonReplacer = function (key, value) {
     return val;
 };
 
+{@if config.promiseInject}{@include file://./es6-promise-polyfill.juicer, _}{@/if}
+
 function $${config.apiName} (options) {
     var domain = '$${swagger.domain}';
     var basePathNew = '$${swagger.basePathNew}';
@@ -148,8 +150,5 @@ $${config.apiName}.prototype.$${req.fnName} = function (_paramObj, success, erro
 };
     {@/each}
 {@/each}
-
-
-
 
 {@if config.surroundMode}return $${config.apiName};{@/if}

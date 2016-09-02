@@ -29,6 +29,7 @@
             -c, --custom <tplPath>  自定义模板(优先级高于 -a和-s)
             -w, --withCredentials   支持跨域传cookie
             -t, --tags <tagName>    按tag分组生成文件,(@)生成全部tag的, (@aaa@bbb)生成aaa和bbb的
+            -p, --promise           注入Promise依赖,默认不注入
 
     mock [options] <swaggerFile>    生成含有mock数据的swagger文件 必填:<swagger文件位置,本地或线上yaml或JSON格式文件> <输出JSON文件位置及名称>
           Usage: mock [options] <swaggerFile>
