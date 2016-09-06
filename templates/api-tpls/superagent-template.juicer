@@ -80,7 +80,9 @@ $${config.apiName}.prototype.$${req.fnName} = function (_paramObj, success, erro
             localIn: '$${parameter.in}'
         });
         {@/each}
-        Utils.lackParam(reject, paramArr, paramObj, error);
+        if (Utils.lackParam(reject, paramArr, paramObj, error)) {
+            return false;
+        }
         options = {
             url: self.urlPre + '$${index}',
             {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
@@ -91,6 +93,7 @@ $${config.apiName}.prototype.$${req.fnName} = function (_paramObj, success, erro
         options.transformRequest = {@if req.transformRequestFormData}Utils.transformRequestFormData{@else}Utils.transformRequestAsForm{@/if};
     {@/if}
         Utils.sendReq(resolve, reject, options, success, error);
+        return true;
     });
 };
     {@/each}
