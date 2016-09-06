@@ -229,7 +229,6 @@ Utils.getOptions = function (options, paramArr, paramObj) {
     }
     options.params = urlParam;
     options.data = objParam;
-    options.pathParam = pathParam;
 
     headerKeys = Object.keys(headers);
     if (headerKeys.length > 0) {
@@ -238,6 +237,10 @@ Utils.getOptions = function (options, paramArr, paramObj) {
             options.headers[key] = headers[key];
         });
     }
+    // 处理restful风格参数
+    options.url = options.url.replace(/\{([^\{\}]+)\}/g, function (s1, s2) {
+        return pathParam[s2];
+    });
     return options;
 };
 

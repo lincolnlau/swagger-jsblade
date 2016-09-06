@@ -3,17 +3,7 @@
 /*
  * 发送请求
  * */
-Utils.sendReq = function ($http, deferred, options, success, error) {
-    var err;
-    var params = options.params;
-    var pathParam = options.pathParam;
-    var url = options.url;
-    // 处理restful风格参数
-    url = url.replace(/\{([^\{\}]+)\}/g, function (s1, s2) {
-        return pathParam[s2];
-    });
-    options.url = url;
-    delete options.pathParam;
+Utils.sendReq = function ($http, resolve, reject, options, success, error) {
     {@if config.withCredentials}options.withCredentials = true;{@/if}
     $http(options)
         .success(function (_data) {
@@ -21,10 +11,10 @@ Utils.sendReq = function ($http, deferred, options, success, error) {
             if (angular.isFunction(success)) {
                 data = success(data);
             }
-            deferred.resolve(data);
+            resolve(data);
         })
         .error(function (data, status, headers, config) {
-            err = {
+            var err = {
                 status: status,
                 headers: headers,
                 config: config,
@@ -33,7 +23,7 @@ Utils.sendReq = function ($http, deferred, options, success, error) {
             if (angular.isFunction(error)) {
                 err = error(err);
             }
-            deferred.reject(err);
+            reject(err);
         });
 };
 
@@ -86,7 +76,7 @@ angular.module('$${config.apiName}Module', [])
     {@if req.transformRequestAsForm}
         options.transformRequest = {@if req.transformRequestFormData}Utils.transformRequestFormData{@else}Utils.transformRequestAsForm{@/if};
     {@/if}
-        Utils.sendReq($http, deferred, options, success, error);
+        Utils.sendReq($http, deferred.resolve, deferred.reject, options, success, error);
         return deferred.promise;
     };
         {@/each}

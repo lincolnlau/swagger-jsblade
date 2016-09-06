@@ -48,3 +48,40 @@
     -V, --version  output the version number
 
 ```
+
+#### 生成的api, -a s方式的是superagent类型,可以添加钩子(hook),支持返回数据和promise两种形式
+```
+import API from '../api/dataApi';
+
+API.interceptor({
+    request: function (config) {
+        console.log(config);
+        return (new Promise(function (resolve, reject) {
+            resolve(config);
+        }));
+    },
+
+    requestError: function (err) {
+        console.log(err);
+        return (new Promise(function (resolve, reject) {
+            resolve(err);
+        }));
+    },
+
+    response: function (response) {
+        console.log(response);
+        return (new Promise(function (resolve, reject) {
+            resolve(response);
+        }));
+    },
+
+    responseError: function (err) {
+        console.log(err);
+        return (new Promise(function (resolve, reject) {
+            resolve(err);
+        }));
+    }
+});
+
+let api = new API('http://xxx.com');
+```

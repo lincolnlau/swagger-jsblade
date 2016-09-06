@@ -1,46 +1,116 @@
 {@if !config.surroundMode}{@include file://./header-template.juicer, _}
 {@/if}{@if config.surroundMode}    {@/if}{@include file://./common-fn-template.juicer, _}
 /*
+ * interceptor, 钩子函数,支持返回promise形式和数据形式
+ * */
+Utils.interceptor = {
+    request: function (config) {
+        return config;
+    },
+    requestError: function (err) {
+        return err;
+    },
+    response: function (response) {
+        return response;
+    },
+    responseError: function (err) {
+        return err;
+    }
+};
+
+/*
+ * 是否使用钩子
+ * */
+Utils.useInterceptor = false;
+
+/*
  * 发送请求
  * */
-Utils.sendReq = function (resolve, reject, options, success, error) {
-    var params = options.params;
-    var pathParam = options.pathParam;
-    var url = options.url;
-    // 处理restful风格参数
-    url = url.replace(/\{([^\{\}]+)\}/g, function (s1, s2) {
-        return pathParam[s2];
-    });
-    superagent(options.method, url)
-    {@if config.withCredentials}.withCredentials(){@/if}
-        .query(params)
-        .set(options.headers || {})
-        .send(options.data)
-        .end(function (_err, res) {
-            var data;
-            var err = _err;
-            if (!err && res.ok) {
-                data = res.body;
+Utils.sendReq = function (resolve, reject, _options, success, error) {
+    if (Utils.useInterceptor) {
+        var promisePre = new Promise(function (preResolve, preReject) {
+            preResolve(_options);
+        });
+        promisePre
+            .then(function (config) {
+                return Utils.interceptor.request(config);
+            })
+            .catch(function (err) {
+                return Utils.interceptor.requestError(err);
+            })
+            .then(function (options) {
+                return new Promise(function (sufResolve, sufReject) {
+                    superagent(options.method, options.url)
+                        {@if config.withCredentials}.withCredentials(){@/if}
+                        .query(options.params)
+                        .set(options.headers || {})
+                        .send(options.data)
+                        .end(function (_err, res) {
+                            sufResolve(res);
+                        });
+                });
+            })
+            .then(function (res) {
+                return Utils.interceptor.response(res);
+            })
+            .then(function (res) {
+                var err = res.error;
+                var data = res.body;
+                if (err) {
+                    return Utils.interceptor.requestError({
+                        status: res.status || err.status,
+                        headers: res.headers || {},
+                        config: res.req || {},
+                        message: res.statusText || err.message || ''
+                    });
+                }
                 if (Utils.isFunction(success)) {
                     data = success(data);
                 }
                 resolve(data);
-            } else {
-                if (!err.response) {
-                    err.response = {};
+                return null;
+            })
+            .then(function (_err) {
+                var err = _err;
+                if (err) {
+                    if (Utils.isFunction(error)) {
+                        err = error(err);
+                    }
+                    reject(err);
                 }
-                err = {
-                    status: err.status,
-                    headers: err.response.headers,
-                    config: err.response.req,
-                    message: err.message
-                };
-                if (Utils.isFunction(error)) {
-                    err = error(err);
+            });
+    } else {
+        superagent(_options.method, _options.url)
+            {@if config.withCredentials}.withCredentials(){@/if}
+            .query(_options.params)
+            .set(_options.headers || {})
+            .send(_options.data)
+            .end(function (_err, res) {
+                var data;
+                var err = _err;
+                if (!err) {
+                    data = res.body;
+                    if (Utils.isFunction(success)) {
+                        data = success(data);
+                    }
+                    resolve(data);
+                } else {
+                    if (!err.response) {
+                        err.response = {};
+                    }
+                    err = {
+                        status: err.status,
+                        headers: err.response.headers,
+                        config: err.response.req,
+                        message: err.message
+                    };
+                    if (Utils.isFunction(error)) {
+                        err = error(err);
+                    }
+                    reject(err);
                 }
-                reject(err);
-            }
-        });
+            });
+    }
 };
 
 {@if config.promiseInject}{@include file://./es6-promise-polyfill.juicer, _}{@/if}
@@ -52,6 +122,25 @@ function $${config.apiName} (options) {
     domain = (typeof domainNew === 'string') ? domainNew : domain;
     this.urlPre = domain + basePathNew;
 }
+
+$${config.apiName}.interceptor = function (injectObj) {
+    if (injectObj.request) {
+        Utils.interceptor.request = injectObj.request;
+        Utils.useInterceptor = true;
+    }
+    if (injectObj.requestError) {
+        Utils.interceptor.requestError = injectObj.requestError;
+        Utils.useInterceptor = true;
+    }
+    if (injectObj.response) {
+        Utils.interceptor.response = injectObj.response;
+        Utils.useInterceptor = true;
+    }
+    if (injectObj.responseError) {
+        Utils.interceptor.responseError = injectObj.responseError;
+        Utils.useInterceptor = true;
+    }
+};
 
 {@each swagger.paths as path,index}
     {@each path as req,key}
