@@ -57,7 +57,7 @@ Utils.sendReq = function (resolve, reject, _options, success, error) {
                 var err = res.error;
                 var data = res.body;
                 if (err) {
-                    return Utils.interceptor.requestError({
+                    return Utils.interceptor.responseError({
                         status: res.status || err.status,
                         headers: res.headers || {},
                         config: res.req || {},
