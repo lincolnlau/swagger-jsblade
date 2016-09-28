@@ -45,7 +45,12 @@ Utils.sendReq = function (resolve, reject, _options, success, error) {
                         .query(options.params)
                         .set(options.headers || {})
                         .send(options.data)
-                        .end(function (_err, res) {
+                        .end(function (_err, _res) {
+                            var res = _res || {};
+                            if (_err) {
+                                res.error = res.error || _err;
+                                res.req = res.req || _err;
+                            }
                             sufResolve(res);
                         });
                 });
