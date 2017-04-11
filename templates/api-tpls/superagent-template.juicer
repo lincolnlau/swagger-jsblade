@@ -49,7 +49,7 @@ Utils.sendReq = function (resolve, reject, _options, success, error) {
                         {@if config.withCredentials}.withCredentials(){@/if}
                         .query(options.params)
                         .set(options.headers || {})
-                        .[postFnStr](options.data)
+                        [postFnStr](options.data)
                         .end(function (_err, _res) {
                             var res = _res || {};
                             if (_err) {
@@ -94,7 +94,7 @@ Utils.sendReq = function (resolve, reject, _options, success, error) {
             {@if config.withCredentials}.withCredentials(){@/if}
             .query(_options.params)
             .set(_options.headers || {})
-            .[postFnStr](_options.data)
+            [postFnStr](_options.data)
             .end(function (_err, res) {
                 var data;
                 var err = _err;
