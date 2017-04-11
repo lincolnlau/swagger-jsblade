@@ -27,6 +27,11 @@ Utils.useInterceptor = false;
  * 发送请求
  * */
 Utils.sendReq = function (resolve, reject, _options, success, error) {
+    var postFnStr = 'send';
+    if (_options.isForm) {
+        postFnStr = 'field';
+    }
+    delete _options.isForm;
     if (Utils.useInterceptor) {
         var promisePre = new Promise(function (preResolve, preReject) {
             preResolve(_options);
@@ -44,7 +49,7 @@ Utils.sendReq = function (resolve, reject, _options, success, error) {
                         {@if config.withCredentials}.withCredentials(){@/if}
                         .query(options.params)
                         .set(options.headers || {})
-                        .send(options.data)
+                        .[postFnStr](options.data)
                         .end(function (_err, _res) {
                             var res = _res || {};
                             if (_err) {
@@ -89,7 +94,7 @@ Utils.sendReq = function (resolve, reject, _options, success, error) {
             {@if config.withCredentials}.withCredentials(){@/if}
             .query(_options.params)
             .set(_options.headers || {})
-            .send(_options.data)
+            .[postFnStr](_options.data)
             .end(function (_err, res) {
                 var data;
                 var err = _err;

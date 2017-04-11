@@ -224,6 +224,7 @@ Utils.getOptions = function (options, paramArr, paramObj) {
     var headerKeys;
     if (Object.keys(form).length > 0) {
         objParam = form;
+        options.isForm = true;
     } else {
         objParam = body;
     }

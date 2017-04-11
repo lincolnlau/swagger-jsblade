@@ -5,6 +5,7 @@
  * */
 Utils.sendReq = function ($http, resolve, reject, options, success, error) {
     {@if config.withCredentials}options.withCredentials = true;{@/if}
+    delete options.isForm;
     $http(options)
         .success(function (_data) {
             var data = _data;
