@@ -32,6 +32,17 @@ Utils.isObject = function (value) {
 };
 
 /*
+ * isEmpty
+ * */
+Utils.isEmpty = function (value) {
+    for(var key in value) {
+        if(value.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+};
+
+/*
 * toJson
 * */
 Utils.toJson = function (obj) {
@@ -52,15 +63,21 @@ Utils.getParams = function (paramArr, paramObj) {
     var key;
     var localIn;
     var temp;
+    var hasBodyKey;
     tempObj.urlParam = {};
     tempObj.pathParam = {};
     tempObj.body = {};
     tempObj.form = {};
     tempObj.headers = {};
+    tempObj.otherParam = {};
     paramArr.forEach(function (item, index) {
         key = item.name;
         localIn = item.localIn;
         temp = paramObj[key];
+        if (localIn === 'body') {
+            hasBodyKey = key;
+        }
+        delete paramObj[key];
         if (!Utils.isNullOrUndefined(temp)) {
             switch (localIn) {
                 case 'body':
@@ -75,11 +92,17 @@ Utils.getParams = function (paramArr, paramObj) {
                 case 'path':
                     tempObj.pathParam[key] = temp;
                     break;
-                default:
+                case 'query':
                     tempObj.urlParam[key] = temp;
+                    break;
+                default:
+                    tempObj.otherParam[key] = temp;
             }
         }
     });
+    if (hasBodyKey && Utils.isEmpty(tempObj.body)) {
+        tempObj.body = paramObj;
+    }
     return tempObj;
 };
 
@@ -94,7 +117,7 @@ Utils.lackParam = function (reject, paramArr, paramObj, error) {
     paramArr.forEach(function (item, index) {
         key = item.name;
         required = item.required;
-        if (required && Utils.isNullOrUndefined(paramObj[key])) {
+        if (required && item.localIn !== 'body' && Utils.isNullOrUndefined(paramObj[key])) {
             lackArr.push(key);
         }
     });
