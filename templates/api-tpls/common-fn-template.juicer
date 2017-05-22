@@ -286,3 +286,18 @@ Utils.toJsonReplacer = function (key, value) {
 
     return val;
 };
+
+/*
+ * paramArr
+ * */
+Utils.paramArr = function (arr) {
+    var resArr = [];
+    arr.forEach(function (item, index) {
+        resArr.push({
+            name: item[0],
+            required: item[1],
+            localIn: item[2]
+        });
+    });
+    return resArr;
+};

@@ -28,6 +28,28 @@ Utils.sendReq = function ($http, resolve, reject, options, success, error) {
         });
 };
 
+/*
+* apiCommon
+* api调用中的公共部分
+* */
+Utils.apiCommon = function ($http, $q, _paramObj, options, a, success, error) {
+    var paramObj = _paramObj;
+    var paramArr = Utils.paramArr(a);
+    var deferred = $q.defer();
+    if (!Utils.isObject(paramObj)) {
+        paramObj = {};
+    }
+
+    if (Utils.lackParam(deferred.reject, paramArr, paramObj, error)) {
+        return deferred.promise;
+    }
+
+    options = Utils.getOptions(options, paramArr, paramObj);
+
+    Utils.sendReq($http, deferred.resolve, deferred.reject, options, success, error);
+    return deferred.promise;
+};
+
 angular.module('$${config.apiName}Module', [])
 
 /*
@@ -51,34 +73,15 @@ angular.module('$${config.apiName}Module', [])
      {@/each}
      * */
     $${config.apiName}.prototype.$${req.fnName} = function (_paramObj, success, error) {
-        var deferred = $q.defer();
-        var paramArr = [];
-        var paramObj = _paramObj;
-        var options;
-        if (!angular.isObject(paramObj)) {
-            paramObj = {};
-        }
-        {@each req.parameters as parameter,pIndex}
-        paramArr.push({
-            name: '$${parameter.name}',
-            required: {@if parameter.required}true{@else}false{@/if},
-            localIn: '$${parameter.in}'
-        });
-        {@/each}
-        if (Utils.lackParam(deferred.reject, paramArr, paramObj, error)) {
-            return deferred.promise;
-        }
-        options = {
-            url: this.urlPre + '$${index}',
-            {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
-            method: '$${key}'
-        };
-        options = Utils.getOptions(options, paramArr, paramObj);
-    {@if req.transformRequestAsForm}
+        var arr = [];
+        var options = {url: this.urlPre + '$${index}', {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr}, {@/if}method: '$${key}'};
+        {@if req.transformRequestAsForm}
         options.transformRequest = {@if req.transformRequestFormData}Utils.transformRequestFormData{@else}Utils.transformRequestAsForm{@/if};
-    {@/if}
-        Utils.sendReq($http, deferred.resolve, deferred.reject, options, success, error);
-        return deferred.promise;
+        {@/if}
+        {@each req.parameters as parameter,pIndex}
+        arr.push(['$${parameter.name}', {@if parameter.required}true{@else}false{@/if}, '$${parameter.in}']);
+        {@/each}
+        return Utils.apiCommon($http, $q, _paramObj, options, arr, success, error);
     };
         {@/each}
     {@/each}

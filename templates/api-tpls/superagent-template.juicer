@@ -123,6 +123,29 @@ Utils.sendReq = function (resolve, reject, _options, success, error) {
     }
 };
 
+/*
+* apiCommon
+* api调用中的公共部分
+* */
+Utils.apiCommon = function (_paramObj, options, a, success, error) {
+    var paramObj = _paramObj;
+    var paramArr = Utils.paramArr(a);
+    if (!Utils.isObject(paramObj)) {
+        paramObj = {};
+    }
+    if (!Promise) {
+        throw new Error('需要Promise,请加入Promise依赖!');
+    }
+    return new Promise(function (resolve, reject) {
+        if (Utils.lackParam(reject, paramArr, paramObj, error)) {
+            return false;
+        }
+        options = Utils.getOptions(options, paramArr, paramObj);
+        Utils.sendReq(resolve, reject, options, success, error);
+        return true;
+    });
+};
+
 {@if config.promiseInject}{@include file://./es6-promise-polyfill.juicer, _}{@/if}
 
 function $${config.apiName} (options) {
@@ -161,39 +184,15 @@ $${config.apiName}.interceptor = function (injectObj) {
  {@/each}
  * */
 $${config.apiName}.prototype.$${req.fnName} = function (_paramObj, success, error) {
-    var paramObj = _paramObj;
-    var self = this;
-    if (!Utils.isObject(paramObj)) {
-        paramObj = {};
-    }
-    if (!Promise) {
-        throw new Error('需要Promise,请加入Promise依赖!');
-    }
-    return new Promise(function (resolve, reject) {
-        var paramArr = [];
-        var options;
-        {@each req.parameters as parameter,pIndex}
-        paramArr.push({
-            name: '$${parameter.name}',
-            required: {@if parameter.required}true{@else}false{@/if},
-            localIn: '$${parameter.in}'
-        });
-        {@/each}
-        if (Utils.lackParam(reject, paramArr, paramObj, error)) {
-            return false;
-        }
-        options = {
-            url: self.urlPre + '$${index}',
-            {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr},{@/if}
-            method: '$${key}'
-        };
-        options = Utils.getOptions(options, paramArr, paramObj);
+    var arr = [];
+    var options = {url: this.urlPre + '$${index}', {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr}, {@/if}method: '$${key}'};
     {@if req.transformRequestAsForm}
-        options.transformRequest = {@if req.transformRequestFormData}Utils.transformRequestFormData{@else}Utils.transformRequestAsForm{@/if};
+    options.transformRequest = {@if req.transformRequestFormData}Utils.transformRequestFormData{@else}Utils.transformRequestAsForm{@/if};
     {@/if}
-        Utils.sendReq(resolve, reject, options, success, error);
-        return true;
-    });
+    {@each req.parameters as parameter,pIndex}
+    arr.push(['$${parameter.name}', {@if parameter.required}true{@else}false{@/if}, '$${parameter.in}']);
+    {@/each}
+    return Utils.apiCommon(_paramObj, options, arr, success, error);
 };
     {@/each}
 {@/each}
