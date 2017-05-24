@@ -1,6 +1,6 @@
 {
   "name": "swagger-jsblade",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/lincolnlau/swagger-jsblade#readme",
   "dependencies": {
-    "body-parser": "^1.17.2",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "debug": "^2.2.0",
