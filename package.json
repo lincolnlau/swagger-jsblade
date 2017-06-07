@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/lincolnlau/swagger-jsblade#readme",
   "dependencies": {
+    "chokidar": "^1.7.0",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
     "debug": "^2.2.0",
