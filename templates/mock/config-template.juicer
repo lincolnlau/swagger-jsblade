@@ -1,10 +1,10 @@
 module.exports = {
-  mockDir: '/mock',
+  mockDir: 'mock',
   basePath: '/',
   path: {
     {@each swagger.paths as path,index}
         {@each path as req,key}
-    '$${index}': 1,
+    '$${index}': 0,
         {@/each}
     {@/each}
   },
