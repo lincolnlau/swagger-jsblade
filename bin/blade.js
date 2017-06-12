@@ -37,6 +37,8 @@ app
     .description('生成含有mock数据的swagger文件 必填:<swagger文件位置,本地或线上yaml或JSON格式文件> <输出JSON文件位置及名称>')
     .option('-f, --file <filePath>', "生成mock file")
     .option('-s, --server [portNum]', "启动mock server,端口号,默认8000")
+    .option('-c, --config <filePath>', "mock数据配置文件")
+    .option('-l, --lite', "不自动识别config文件")
     .action(execute(mock.create));
 
 app.parse(process.argv);
