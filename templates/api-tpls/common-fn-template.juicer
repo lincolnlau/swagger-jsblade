@@ -56,6 +56,16 @@ Utils.toJson = function (obj) {
 };
 
 /*
+* cloneObj
+* */
+Utils.cloneObj = function (obj) {
+    if (!Utils.isObject(obj)) {
+        return {};
+    }
+    return JSON.parse(JSON.stringify(obj));
+};
+
+/*
 * 参数赋值
 * */
 Utils.getParams = function (paramArr, paramObj) {
