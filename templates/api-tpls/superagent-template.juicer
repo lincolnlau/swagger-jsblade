@@ -128,11 +128,8 @@ Utils.sendReq = function (resolve, reject, _options, success, error) {
 * api调用中的公共部分
 * */
 Utils.apiCommon = function (_paramObj, options, a, success, error) {
-    var paramObj = _paramObj;
+    var paramObj = Utils.cloneObj(_paramObj);
     var paramArr = Utils.paramArr(a);
-    if (!Utils.isObject(paramObj)) {
-        paramObj = {};
-    }
     if (!Promise) {
         throw new Error('需要Promise,请加入Promise依赖!');
     }
