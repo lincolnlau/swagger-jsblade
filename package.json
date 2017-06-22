@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/lincolnlau/swagger-jsblade#readme",
   "dependencies": {
-    "api-cases-middleware": "0.0.5",
+    "api-cases-middleware": "^0.0.8",
     "chokidar": "^1.7.0",
     "colors": "^1.1.2",
     "commander": "^2.9.0",
