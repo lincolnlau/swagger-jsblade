@@ -33,12 +33,9 @@ Utils.sendReq = function ($http, resolve, reject, options, success, error) {
 * api调用中的公共部分
 * */
 Utils.apiCommon = function ($http, $q, _paramObj, options, a, success, error) {
-    var paramObj = _paramObj;
+    var paramObj = Utils.cloneObj(_paramObj);
     var paramArr = Utils.paramArr(a);
     var deferred = $q.defer();
-    if (!angular.isObject(paramObj)) {
-        paramObj = {};
-    }
 
     if (Utils.lackParam(deferred.reject, paramArr, paramObj, error)) {
         return deferred.promise;

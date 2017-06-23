@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "外部接口文档",
+        "description": "外部接口文档1",
         "version": "1.0.0",
         "title": "天狼APP前后端接口-外部",
         "termsOfService": "http://${sirius.domain}/*",
