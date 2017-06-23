@@ -1,6 +1,6 @@
 module.exports = {
   mockDir: './mock/',
-  basePath: '/',
+  basePath: '$${swagger.basePath}',
   path: {
     {@each paths as path,index}
     '$${path}': 0,
