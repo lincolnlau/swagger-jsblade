@@ -3,3 +3,5 @@ node_modules
 temp
 .idea
 npm-debug.log
+mock.config.js
+mock.json
