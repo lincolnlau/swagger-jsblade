@@ -1,0 +1,10 @@
+module.exports = {
+  mockDir: './mock/',
+  basePath: '$${swagger.basePath}',
+  path: {
+    {@each paths as path,index}
+    '$${path}': 0,
+    {@/each}
+  },
+  proxy: {}
+}
