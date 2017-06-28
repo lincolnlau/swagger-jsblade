@@ -1,4 +1,9 @@
 # swagger-jsblade
+
+
+[![NPM package](http://img.shields.io/npm/dm/swagger-jsblade.svg)](https://npmjs.org/package/swagger-jsblade)
+[![NPM downloads](http://img.shields.io/npm/dm/swagger-jsblade.svg)](https://npmjs.org/package/swagger-jsblade)
+[![Join the chat at https://gitter.im/jsblade/Lobby](https://badges.gitter.im/swagger-jsblade/jsblade.svg)](https://gitter.im/jsblade/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ```
   Usage: blade [options] [command]
 
