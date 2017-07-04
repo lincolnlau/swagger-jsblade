@@ -59,10 +59,16 @@ Utils.toJson = function (obj) {
 * cloneObj
 * */
 Utils.cloneObj = function (obj) {
+    var resObj = {};
     if (!Utils.isObject(obj)) {
-        return {};
+        return resObj;
     }
-    return JSON.parse(JSON.stringify(obj));
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            resObj[key] = obj[key];
+        }
+    }
+    return resObj;
 };
 
 /*
