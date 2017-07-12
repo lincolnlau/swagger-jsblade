@@ -1,6 +1,0 @@
-{@include file://./../../header-template.juicer, _}
-define([
-    '@hfe/superbridge'
-], function (superbridge) {
-// 子模板替换位置
-});

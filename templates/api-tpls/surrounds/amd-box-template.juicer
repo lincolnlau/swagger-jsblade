@@ -1,0 +1,6 @@
+{@include file://./../header-template.juicer, _}
+define([
+    '$${config.importName}'
+], function ($${config.exportName}) {
+// 子模板替换位置
+});

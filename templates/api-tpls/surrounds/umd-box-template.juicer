@@ -1,0 +1,17 @@
+{@include file://./../header-template.juicer, _}
+(function (global, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD 格式
+        define([
+            '$${config.importName}'
+        ], factory);
+    } else if (typeof exports === 'object') {
+        // CommonJs 格式
+        module.exports = factory(require('$${config.importName}'));
+    } else {
+        // 挂载到浏览器 window 下
+        global.$${config.apiName} = factory(global.$${config.exportName});
+    }
+}(this, function ($${config.exportName}) {
+// 子模板替换位置
+}));

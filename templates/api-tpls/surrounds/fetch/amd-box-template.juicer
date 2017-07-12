@@ -1,6 +1,0 @@
-{@include file://./../../header-template.juicer, _}
-define([
-    'fetch'
-], function (fetch) {
-// 子模板替换位置
-});
