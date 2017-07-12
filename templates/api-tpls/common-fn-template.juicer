@@ -72,6 +72,21 @@ Utils.cloneObj = function (obj) {
 };
 
 /*
+* 覆盖对象参数
+* */
+Utils.assignObj = function (obj, addObj) {
+    if (!Utils.isObject(addObj) || !Utils.isObject(obj)) {
+        return obj;
+    }
+    for (var key in addObj) {
+        if (addObj.hasOwnProperty(key)) {
+            obj[key] = addObj[key];
+        }
+    }
+    return obj;
+};
+
+/*
 * 参数赋值
 * */
 Utils.getParams = function (paramArr, paramObj) {

@@ -24,7 +24,7 @@ app
     .command('api <apiName> <swaggerFile> <toPath> [outFileName]')
     .description('创建一个api接口集合\n' +
         '  必填:<api名称> <swagger文件位置,支持本地和线上> <输出文件位置> [输出文件名称]')
-    .option('-a, --ajax <type>', "发送请求类型(-c时无效), n: $http类型, s: superagent类型")
+    .option('-a, --ajax <type>', "发送请求类型(-c时无效), n: $http类型, s: superagent类型, f: fetch类型, a: axios类型, b: superbridge类型")
     .option('-s, --surround <mode>', "包围模式(-c时无效), 将生成的代码包含在UMD-1 AMD-2 CommonJS-3 或 闭包-4 中")
     .option('-c, --custom <tplPath>', "自定义模板(优先级高于 -a和-s)")
     .option('-w, --withCredentials', "支持跨域传cookie")

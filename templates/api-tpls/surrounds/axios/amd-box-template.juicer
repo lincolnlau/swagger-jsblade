@@ -1,0 +1,6 @@
+{@include file://./../../header-template.juicer, _}
+define([
+    'axios'
+], function (axios) {
+// 子模板替换位置
+});
