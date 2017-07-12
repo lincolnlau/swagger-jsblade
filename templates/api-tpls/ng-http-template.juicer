@@ -9,7 +9,7 @@ Utils.sendReq = function ($http, resolve, reject, options, success, error) {
     $http(options)
         .success(function (_data) {
             var data = _data;
-            if (angular.isFunction(success)) {
+            if (Utils.isFunction(success)) {
                 data = success(data);
             }
             resolve(data);
@@ -21,7 +21,7 @@ Utils.sendReq = function ($http, resolve, reject, options, success, error) {
                 config: config,
                 message: data
             };
-            if (angular.isFunction(error)) {
+            if (Utils.isFunction(error)) {
                 err = error(err);
             }
             reject(err);
@@ -57,7 +57,7 @@ angular.module('$${config.apiName}Module', [])
     var domain = '$${swagger.domain}';
     var basePathNew = '$${swagger.basePathNew}';
     function $${config.apiName} (options) {
-        var domainNew = (angular.isObject(options)) ? options.domain : options;
+        var domainNew = (Utils.isObject(options)) ? options.domain : options;
         domain = (typeof domainNew === 'string') ? domainNew : domain;
         this.urlPre = domain + basePathNew;
     }
