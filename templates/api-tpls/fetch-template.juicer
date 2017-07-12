@@ -84,4 +84,8 @@ Utils.sendReq = function (resolve, reject, _options, success, error) {
     }
 };
 
+{@include file://./common/createapi-template.juicer, _}
+
+{@include file://./common/interceptor2-template.juicer, _}
+
 {@include file://./common/apis-template.juicer, _}

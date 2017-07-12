@@ -1,37 +1,4 @@
 /*
-* apiCommon
-* api调用中的公共部分
-* */
-Utils.apiCommon = function (_paramObj, options, a, success, error, opt) {
-    var paramObj = Utils.cloneObj(_paramObj);
-    var paramArr = Utils.paramArr(a);
-    if (!Promise) {
-        throw new Error('需要Promise,请加入Promise依赖!');
-    }
-    return new Promise(function (resolve, reject) {
-        if (Utils.lackParam(reject, paramArr, paramObj, error)) {
-            return false;
-        }
-        options = Utils.getOptions(options, paramArr, paramObj);
-        options = Utils.assignObj(options, opt);
-        Utils.sendReq(resolve, reject, options, success, error);
-        return true;
-    });
-};
-
-{@if config.promiseInject}{@include file://./es6-promise-polyfill.juicer, _}{@/if}
-
-function $${config.apiName} (options) {
-    var domain = '$${swagger.domain}';
-    var basePathNew = '$${swagger.basePathNew}';
-    var domainNew = (Utils.isObject(options)) ? options.domain : options;
-    domain = (typeof domainNew === 'string') ? domainNew : domain;
-    this.urlPre = domain + basePathNew;
-}
-
-{@include file://./interceptor1-template.juicer, _}
-
-/*
  * 请求说明
  * _paramObj 数据参数对象     非必填
  * success   成功回调函数     非必填 不推荐使用,可用promise的then处理
