@@ -1,4 +1,4 @@
-{@include file://./../header-template.juicer, _}
+{@include file://./../common/header-template.juicer, _}
 (function (global, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD 格式

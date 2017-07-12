@@ -1,4 +1,4 @@
-{@include file://./../header-template.juicer, _}
+{@include file://./../common/header-template.juicer, _}
 var $${config.exportName} = require('$${config.importName}');
 
 module.exports = (function () {

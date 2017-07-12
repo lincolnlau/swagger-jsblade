@@ -1,5 +1,5 @@
-{@if !config.surroundMode}{@include file://./header-template.juicer, _}
-{@/if}{@if config.surroundMode}    {@/if}{@include file://./common-fn-template.juicer, _}
+{@if !config.surroundMode}{@include file://./common/header-template.juicer, _}
+{@/if}{@if config.surroundMode}    {@/if}{@include file://./common/common-fn-template.juicer, _}
 {@include file://./common/interceptor1-template.juicer, _}
 
 /*

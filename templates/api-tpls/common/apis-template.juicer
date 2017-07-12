@@ -19,7 +19,7 @@ Utils.apiCommon = function (_paramObj, options, a, success, error, opt) {
     });
 };
 
-{@if config.promiseInject}{@include file://./../es6-promise-polyfill.juicer, _}{@/if}
+{@if config.promiseInject}{@include file://./es6-promise-polyfill.juicer, _}{@/if}
 
 function $${config.apiName} (options) {
     var domain = '$${swagger.domain}';

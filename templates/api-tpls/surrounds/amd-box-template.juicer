@@ -1,4 +1,4 @@
-{@include file://./../header-template.juicer, _}
+{@include file://./../common/header-template.juicer, _}
 define([
     '$${config.importName}'
 ], function ($${config.exportName}) {
