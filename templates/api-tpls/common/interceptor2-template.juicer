@@ -1,0 +1,18 @@
+$${config.apiName}.interceptor = function (injectObj) {
+    if (injectObj.request) {
+        Utils.interceptor.request = injectObj.request;
+        Utils.useInterceptor = true;
+    }
+    if (injectObj.requestError) {
+        Utils.interceptor.requestError = injectObj.requestError;
+        Utils.useInterceptor = true;
+    }
+    if (injectObj.response) {
+        Utils.interceptor.response = injectObj.response;
+        Utils.useInterceptor = true;
+    }
+    if (injectObj.responseError) {
+        Utils.interceptor.responseError = injectObj.responseError;
+        Utils.useInterceptor = true;
+    }
+};

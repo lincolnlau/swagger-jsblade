@@ -1,27 +1,6 @@
 {@if !config.surroundMode}{@include file://./header-template.juicer, _}
 {@/if}{@if config.surroundMode}    {@/if}{@include file://./common-fn-template.juicer, _}
-/*
- * interceptor, 钩子函数,支持返回promise形式和数据形式
- * */
-Utils.interceptor = {
-    request: function (config) {
-        return config;
-    },
-    requestError: function (err) {
-        return err;
-    },
-    response: function (response) {
-        return response;
-    },
-    responseError: function (err) {
-        return err;
-    }
-};
-
-/*
- * 是否使用钩子
- * */
-Utils.useInterceptor = false;
+{@include file://./common/interceptor1-template.juicer, _}
 
 /*
  * 发送请求
@@ -105,84 +84,4 @@ Utils.sendReq = function (resolve, reject, _options, success, error) {
     }
 };
 
-/*
-* apiCommon
-* api调用中的公共部分
-* */
-Utils.apiCommon = function (_paramObj, options, a, success, error, opt) {
-    var paramObj = Utils.cloneObj(_paramObj);
-    var paramArr = Utils.paramArr(a);
-    if (!Promise) {
-        throw new Error('需要Promise,请加入Promise依赖!');
-    }
-    return new Promise(function (resolve, reject) {
-        if (Utils.lackParam(reject, paramArr, paramObj, error)) {
-            return false;
-        }
-        options = Utils.getOptions(options, paramArr, paramObj);
-        options = Utils.assignObj(options, opt);
-        Utils.sendReq(resolve, reject, options, success, error);
-        return true;
-    });
-};
-
-{@if config.promiseInject}{@include file://./es6-promise-polyfill.juicer, _}{@/if}
-
-function $${config.apiName} (options) {
-    var domain = '$${swagger.domain}';
-    var basePathNew = '$${swagger.basePathNew}';
-    var domainNew = (Utils.isObject(options)) ? options.domain : options;
-    domain = (typeof domainNew === 'string') ? domainNew : domain;
-    this.urlPre = domain + basePathNew;
-}
-
-$${config.apiName}.interceptor = function (injectObj) {
-    if (injectObj.request) {
-        Utils.interceptor.request = injectObj.request;
-        Utils.useInterceptor = true;
-    }
-    if (injectObj.requestError) {
-        Utils.interceptor.requestError = injectObj.requestError;
-        Utils.useInterceptor = true;
-    }
-    if (injectObj.response) {
-        Utils.interceptor.response = injectObj.response;
-        Utils.useInterceptor = true;
-    }
-    if (injectObj.responseError) {
-        Utils.interceptor.responseError = injectObj.responseError;
-        Utils.useInterceptor = true;
-    }
-};
-
-/*
- * 请求说明
- * _paramObj 数据参数对象     非必填
- * success   成功回调函数     非必填 不推荐使用,可用promise的then处理
- * error     异常回调函数     非必填 不推荐使用,可用promise的catch处理
- * opt       请求时额外参数   非必填
- * */
-
-{@each swagger.paths as path,index}
-    {@each path as req,key}
-/*
- * $${req.summary}
- {@each req.parameters as parameter,pIndex}
- * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
- {@/each}
- * */
-$${config.apiName}.prototype.$${req.fnName} = function (_paramObj, success, error, opt) {
-    var arr = [];
-    var options = {url: this.urlPre + '$${index}', {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr}, {@/if}method: '$${key}'};
-    {@if req.transformRequestAsForm}
-    options.transformRequest = {@if req.transformRequestFormData}Utils.transformRequestFormData{@else}Utils.transformRequestAsForm{@/if};
-    {@/if}
-    {@each req.parameters as parameter,pIndex}
-    arr.push(['$${parameter.name}', {@if parameter.required}true{@else}false{@/if}, '$${parameter.in}']);
-    {@/each}
-    return Utils.apiCommon(_paramObj, options, arr, success, error, opt);
-};
-    {@/each}
-{@/each}
-
-{@if config.surroundMode}return $${config.apiName};{@/if}
+{@include file://./common/apis-template.juicer, _}
