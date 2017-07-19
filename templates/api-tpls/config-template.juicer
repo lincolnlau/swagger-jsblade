@@ -1,0 +1,26 @@
+{@if !config.surroundMode}{@include file://./common/header-template.juicer, _}
+{@/if}{@if config.surroundMode}    {@/if}var config = {
+    domain: '$${swagger.domain}',
+    baseUrl: '$${swagger.basePathNew}',
+    {@if config.withCredentials}withCredentials: true,{@/if}
+    apis: { // API列表{@each swagger.paths as path,index}{@each path as req,key},
+        /*
+         * $${req.summary}
+         {@each req.parameters as parameter,pIndex}
+         * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
+         {@/each}
+         * */
+        $${req.fnName}: {
+            url: '$${index}',
+            method: '$${key}',
+            {@if req.headerStr}headers: $${req.headerStr},{@/if}
+            {@if req.transformRequestAsForm}
+            transformRequest: {@if req.transformRequestFormData}'transformRequestFormData'{@else}'transformRequestAsForm'{@/if},
+            {@/if}
+            parameters: {   // 参数列表{@each req.parameters as parameter,pIndex},
+                $${parameter.name}: [{@if parameter.required}true{@else}false{@/if}, '$${parameter.in}']{@/each}
+            }
+        }{@/each}{@/each}
+    }
+};
+{@if config.surroundMode}return config;{@/if}

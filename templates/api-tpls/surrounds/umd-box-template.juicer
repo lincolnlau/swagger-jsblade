@@ -2,16 +2,16 @@
 (function (global, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD 格式
-        define([
+        define([{@if config.importName}
             '$${config.importName}'
-        ], factory);
+        {@/if}], factory);
     } else if (typeof exports === 'object') {
         // CommonJs 格式
-        module.exports = factory(require('$${config.importName}'));
+        module.exports = factory({@if config.importName}require('$${config.importName}'){@/if});
     } else {
         // 挂载到浏览器 window 下
-        global.$${config.apiName} = factory(global.$${config.exportName});
+        global.$${config.apiName} = factory({@if config.exportName}global.$${config.exportName}{@/if});
     }
-}(this, function ($${config.exportName}) {
+}(this, function ({@if config.exportName}$${config.exportName}{@/if}) {
 // 子模板替换位置
 }));
