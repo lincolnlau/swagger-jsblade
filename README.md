@@ -16,7 +16,7 @@ For complete information about Swagger™, you can check the Swagger Specificati
 
 ## Install
 ```shell
-npm i swagger-jsbalde -g
+npm i swagger-jsblade -g
 ```
 ### Boilerplate Example
 ```shell
