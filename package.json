@@ -24,7 +24,7 @@
     "debug": "^2.2.0",
     "events": "^1.1.0",
     "express": "^4.14.0",
-    "express-proxy-middleware": "^1.0.4",
+    "express-proxy-middleware": "^1.0.7",
     "fs-extra": "^0.30.0",
     "fs-finder": "^1.8.1",
     "inquirer": "^1.0.2",
