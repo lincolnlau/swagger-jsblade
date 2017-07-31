@@ -17,6 +17,8 @@ module.exports = {
    '/api': {
      // set the target host. The scheme is necessary (such as 'http://' or 'http://'), even if the target is a IP address, it should write with the shcema.
      target: 'http://meituan.com:80',
+      // whether print Http headers. default false
+      debug: false,
      // set fields in the request headers.
      headers: {
        // set the cookie in the request headers
