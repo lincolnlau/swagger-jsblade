@@ -6,61 +6,27 @@ module.exports = {
     '$${path.path}': $${path.value},
     {@/each}
   },
- proxy: {
-   /**
-    * path that matching, can use glob pattern for matching
-    * '/api': matches paths starting with /api
-    * '**': matches any path
-    * '/api/*.html': matches any path ending with .html in the path of /api
-    * '/api/**': matches any path starting with /api
+  /**
+    * Proxy [Object]: {path: Object} Set the proxy rule, keys are the path for matching, the value should a object to set the detail matching rules.
+    * @path [string]: Path that matching, can use glob pattern for matching.
+    *   Example:
+    *     '/api': matches paths starting with /api
+    *     '**': matches any path
+    *     '/api/*.html': matches any path ending with .html in the path of /api
+    *     '/api/**': matches any path starting with /api
+    * @path.target [string]: set the target host. The scheme is necessary (such as 'http://' or 'http://'), even if the target is a IP address, it should write with the shcema.
+    * @path.debug [Boolean]: whether print Http headers or not. default false
+    * @path.headers [Object]: set fields in the request headers.
+    * @path.headers.cookie [String]: set the cookie field in the request headers
+    * @path.headers.host [String]: set the host field in the request headers
     */
-   '/api': {
-     // set the target host. The scheme is necessary (such as 'http://' or 'http://'), even if the target is a IP address, it should write with the shcema.
+ proxy: {
+   '/path/**': {
      target: 'http://meituan.com:80',
-      // whether print Http headers. default false
-      debug: false,
-     // set fields in the request headers.
+     debug: false,
      headers: {
-       // set the cookie in the request headers
        cookie: 'ssoid=12345678*abcdefg;',
-       // set the host fields in the request headers
        host: 'meituan.com'
-     },
-     // rewrite path
-     pathRewrite: {
-       /**
-        * object-keys will be used as RegExp to match paths
-        */
-       // rewrite '/api/old' to '/api/new'
-       '^/api/old': '/api/new',
-       // remove path
-       '^/api': '',
-       // add basePath
-       '^/': '/base/',
-       // custome rewriting
-       function (path, req) {
-         return path.replace('/api', '/base/api');
-       }
-     }
-   },
-   '/foo/**': {
-     target: 'http://localhost:9001',
-     /**
-      * return false, the path won't be proxy
-      * return a path, the path will be rewrite to the new path.
-      * without return value, the path will be proxy.
-      */
-     bypass: function(req, res, proxyOptions) {
-       if (/\.html$/.test(req.path)) {
-         // rewrite the path
-         return '/foo/a/index.html';
-       } else if (/noproxy/.test(req.path)) {
-         // won't proxy
-         return false;
-       } else {
-         // return no value, it will proxy to the target.
-         return;
-       }
      }
    }
  }
