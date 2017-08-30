@@ -63,15 +63,17 @@ blade api -h
   创建一个api接口集合
   必填:<api名称> <swagger文件位置,支持本地和线上> <输出文件位置> [输出文件名称]
 
+
   Options:
 
-    -h, --help              output usage information
-    -a, --ajax <type>       发送请求类型(-c时无效), n: $http类型, s: superagent类型, f: fetch类型, a: axios类型, b: superbridge类型
-    -s, --surround <mode>   包围模式(-c时无效), 将生成的代码包含在UMD-1 AMD-2 CommonJS-3 或 闭包-4 中
+    -a, --ajax <type>       发送请求类型(-c时无效), n: $http类型, s: superagent类型, f: fetch类型, a: axios类型, b: superbridge类型, c: config类型,只生成配置
+    -s, --surround <mode>   包围模式(-c时无效), 将生成的代码包含在UMD-1 AMD-2 CommonJS-3 闭包-4 ES6-5 中
     -c, --custom <tplPath>  自定义模板(优先级高于 -a和-s)
     -w, --withCredentials   支持跨域传cookie
     -t, --tags <tagName>    按tag分组生成文件,(@)生成全部tag的, (@aaa@bbb)生成aaa和bbb的
     -p, --promise           注入Promise依赖,默认不注入
+    -V, --version           output the version number
+    -h, --help              output usage information
 ```
 
 #### Using API
@@ -126,6 +128,31 @@ API.interceptor({
 
 let api = new API('http://xxx.com');
 ```
+
+**如果生成的是cofig形式,可参照下面demo使用**
+```
+import ApiUtil from '@/common/services/ApiUtil';    // 引入工具包
+import ApiConfig from '@/common/services/config';   // 引入生成的配置文件
+import axios from 'axios';
+
+axios.interceptors.request.use(function (config) {
+    return config;
+}, function (err) {
+    return Promise.reject(err);
+});
+axios.interceptors.response.use(function (response) {
+    return response;
+}, function (err) {
+    return Promise.reject(err);
+});
+
+export const Apis = new ApiUtil(ApiConfig, {
+    domain: ''
+});
+
+export default Apis;
+```
+
 ### Mock Example
 #### Mock data generation
 
