@@ -4,7 +4,7 @@
 
 ## Introduction
 
-Jsbalde is a tool kit for Front-End developers who use Swagger as their API definition.
+Jsblade is a tool kit for Front-End developers who use Swagger as their API definition.
 These are the main it solved.
 
 * Boilerplate
@@ -16,7 +16,7 @@ For complete information about Swagger™, you can check the Swagger Specificati
 
 ## Install
 ```shell
-npm i swagger-jsbalde -g
+npm i swagger-jsblade -g
 ```
 ### Boilerplate Example
 ```shell
