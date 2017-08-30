@@ -1,6 +1,6 @@
 {
   "name": "swagger-jsblade",
-  "version": "0.2.4",
+  "version": "1.2.4-beta",
   "description": "",
   "main": "index.js",
   "scripts": {
