@@ -153,6 +153,26 @@ export const Apis = new ApiUtil(ApiConfig, {
 export default Apis;
 ```
 
+ApiUtil调用工具可用 blade util命令生成
+
+###API调用工具生成
+```
+blade util -h
+
+  Usage: util [options] <toPath> [outFileName]
+
+  创建一个api调用工具
+  必填:<输出文件位置> [输出文件名称,默认ApiUtil]
+
+
+  Options:
+
+    -a, --ajax <type>      发送请求类型, a: axios类型, 目前只支持axios类型
+    -s, --surround <mode>  包围模式, 将生成的代码包含在UMD-1 AMD-2 CommonJS-3 闭包-4 ES6-5 中
+    -V, --version          output the version number
+    -h, --help             output usage information
+
+```
 ### Mock Example
 #### Mock data generation
 
