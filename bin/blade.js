@@ -5,6 +5,7 @@
 var app =  require('commander');
 var project = require('../lib/commands/project');
 var codegen = require('../lib/commands/codegen');
+var apiUtil = require('../lib/commands/apiUtil');
 var mock = require('../lib/commands/mock');
 var frameworks = Object.keys(project.frameworks).join('|');
 var cli = require('../lib/util/cli');
@@ -32,6 +33,15 @@ app
     .option('-p, --promise', "注入Promise依赖,默认不注入")
     .version(appInfo.version)
     .action(execute(codegen.create));
+
+app
+    .command('util <toPath> [outFileName]')
+    .description('创建一个api调用工具\n' +
+        '  必填:<输出文件位置> [输出文件名称,默认ApiUtil]')
+    .option('-a, --ajax <type>', "发送请求类型, a: axios类型, 目前只支持axios类型")
+    .option('-s, --surround <mode>', "包围模式, 将生成的代码包含在UMD-1 AMD-2 CommonJS-3 闭包-4 ES6-5 中")
+    .version(appInfo.version)
+    .action(execute(apiUtil.create));
 
 app
     .command('mock <swaggerFile>')
