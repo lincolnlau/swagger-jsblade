@@ -1,0 +1,334 @@
+/*
+* 工具对象
+* */
+var Utils = {};
+
+/*
+* 判断null 或 undefined
+* */
+Utils.isNullOrUndefined = function (value) {
+    return (typeof value === 'undefined' || value === null);
+};
+
+/*
+* isUndefined
+* */
+Utils.isUndefined = function (value) {
+    return typeof value === 'undefined';
+};
+
+/*
+* isFunction
+* */
+Utils.isFunction = function (value) {
+    return typeof value === 'function';
+};
+
+/*
+* isObject
+* */
+Utils.isObject = function (value) {
+    return value !== null && typeof value === 'object';
+};
+
+/*
+ * isEmpty
+ * */
+Utils.isEmpty = function (value) {
+    for(var key in value) {
+        if(value.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+};
+
+/*
+* toJson
+* */
+Utils.toJson = function (obj) {
+    var rFn = null;
+    var undefinedValue;
+    if (Utils.isUndefined(obj)) return undefinedValue;
+    if (Utils.isFunction(Utils.toJsonReplacer)) {
+        rFn = Utils.toJsonReplacer;
+    }
+    return JSON.stringify(obj, rFn, null);
+};
+
+/*
+* cloneObj
+* */
+Utils.cloneObj = function (obj) {
+    var resObj = {};
+    if (!Utils.isObject(obj)) {
+        return resObj;
+    }
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            resObj[key] = obj[key];
+        }
+    }
+    return resObj;
+};
+
+/*
+* 覆盖对象参数
+* */
+Utils.assignObj = function (obj, addObj) {
+    if (!Utils.isObject(addObj) || !Utils.isObject(obj)) {
+        return obj;
+    }
+    for (var key in addObj) {
+        if (addObj.hasOwnProperty(key)) {
+            obj[key] = addObj[key];
+        }
+    }
+    return obj;
+};
+
+/*
+* 参数赋值
+* */
+Utils.getParams = function (paramArr, paramObj) {
+    var tempObj = {};
+    var key;
+    var localIn;
+    var temp;
+    var hasBodyKey;
+    tempObj.urlParam = {};
+    tempObj.pathParam = {};
+    tempObj.body = {};
+    tempObj.form = {};
+    tempObj.headers = {};
+    tempObj.otherParam = {};
+    paramArr.forEach(function (item, index) {
+        key = item.name;
+        localIn = item.localIn;
+        temp = paramObj[key];
+        if (localIn === 'body') {
+            hasBodyKey = key;
+        }
+        delete paramObj[key];
+        if (!Utils.isNullOrUndefined(temp)) {
+            switch (localIn) {
+                case 'body':
+                    tempObj.body = temp;
+                    break;
+                case 'formData':
+                    tempObj.form[key] = temp;
+                    break;
+                case 'header':
+                    tempObj.headers[key] = temp;
+                    break;
+                case 'path':
+                    tempObj.pathParam[key] = temp;
+                    break;
+                case 'query':
+                    tempObj.urlParam[key] = temp;
+                    break;
+                default:
+                    tempObj.otherParam[key] = temp;
+            }
+        }
+    });
+    if (hasBodyKey && Utils.isEmpty(tempObj.body)) {
+        tempObj.body = paramObj;
+    }
+    return tempObj;
+};
+
+/*
+* 必须参数校验
+* */
+Utils.lackParam = function (reject, paramArr, paramObj, error) {
+    var key;
+    var required;
+    var lackArr = [];
+    var err;
+    paramArr.forEach(function (item, index) {
+        key = item.name;
+        required = item.required;
+        if (required && item.localIn !== 'body' && Utils.isNullOrUndefined(paramObj[key])) {
+            lackArr.push(key);
+        }
+    });
+    if (lackArr.length > 0) {
+        err = new Error('缺少必要参数: ' + lackArr.join(', ') + ' !');
+        if (Utils.isFunction(error)) {
+            err = error(err);
+        }
+        reject(err);
+        return true;
+    }
+    return false;
+};
+
+/*
+* multipart/form-data 类型表单,通常用于上传文件
+* */
+Utils.transformRequestFormData = function (data, headersGetter) {
+    var undefinedValue;
+    var headers = headersGetter();
+    var fd;
+    var createKey;
+    var addToFd;
+    headers['Content-Type'] = undefinedValue;
+    if (!Utils.isObject(data)) {
+        return (Utils.isNullOrUndefined(data) ? '' : data.toString());
+    }
+
+    fd = new FormData();
+    createKey = function (_keys_, currentKey) {
+        var formKey;
+        var keys = JSON.parse(JSON.stringify(_keys_));
+        keys.push(currentKey);
+        formKey = keys.shift();
+        if (keys.length) {
+            formKey += '[' + keys.join('][') + ']';
+        }
+        return formKey;
+    };
+
+    addToFd = function (object, keys) {
+        var value;
+        var formKey;
+        var len;
+        var _keys;
+        var key;
+        var i;
+        for (key in object) {
+            if (!object.hasOwnProperty(key)) {
+                continue;
+            }
+            value = object[key];
+            formKey = createKey(keys, key);
+
+            if (value instanceof File) {
+                fd.append(formKey, value);
+            } else if (value instanceof FileList) {
+                len = value.length;
+                if (len === 1) {
+                    fd.append(formKey, value[0]);
+                } else {
+                    for (i = 0; i < len; i++) {
+                        fd.append(formKey + '[' + i + ']', value[i]);
+                    }
+                }
+            } else if (Utils.isObject(value)) {
+                _keys = JSON.parse(JSON.stringify(keys));
+                _keys.push(key);
+                addToFd(value, _keys);
+            } else {
+                fd.append(formKey, value);
+            }
+        }
+    };
+    addToFd(data, []);
+    return fd;
+};
+
+/*
+* application/x-www-form-urlencoded 类型表单,普通表单类型
+* */
+Utils.transformRequestAsForm = function (data, getHeaders) {
+    var headers = getHeaders();
+    var buffer = [];
+    var value;
+    var encodedStr;
+    var key;
+    function rfc3986 (str) {
+        return str.replace(/[!'()*]/g, function (c) {
+            return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+        });
+    }
+    headers[ 'Content-Type' ] = 'application/x-www-form-urlencoded; charset=utf-8';
+    if (!Utils.isObject(data)) {
+        return (Utils.isNullOrUndefined(data) ? '' : data.toString());
+    }
+
+    // Serialize each key in the object.
+    for (key in data) {
+        if (!data.hasOwnProperty(key)) {
+            continue;
+        }
+        value = data[key];
+        if (Utils.isNullOrUndefined(value)) {
+            value = '';
+        } else if (Utils.isObject(value)) {
+            value = Utils.toJson(value);
+        }
+        buffer.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+    }
+
+    encodedStr = buffer.join('&').replace(/%20/g, '+');
+    return rfc3986(encodedStr);
+};
+
+/*
+ * 生成options
+ * */
+Utils.getOptions = function (options, paramArr, paramObj) {
+    var objParam = {};
+    var tempObj = Utils.getParams(paramArr, paramObj);
+    var form = tempObj.form;
+    var body = tempObj.body;
+    var headers = tempObj.headers;
+    var urlParam = tempObj.urlParam;
+    var pathParam = tempObj.pathParam;
+    var headerKeys;
+    if (Object.keys(form).length > 0) {
+        objParam = form;
+        options.isForm = true;
+    } else {
+        objParam = body;
+    }
+    options.params = urlParam;
+    options.data = objParam;
+
+    headerKeys = Object.keys(headers);
+    if (headerKeys.length > 0) {
+        options.headers = options.headers || {};
+        headerKeys.forEach(function (key) {
+            options.headers[key] = headers[key];
+        });
+    }
+    // 处理restful风格参数
+    options.url = options.url.replace(/\{([^\{\}]+)\}/g, function (s1, s2) {
+        return pathParam[s2];
+    });
+    return options;
+};
+
+/*
+ * toJsonReplacer
+ * */
+Utils.toJsonReplacer = function (key, value) {
+    var val = value;
+    var undefinedValue;
+    if (typeof key === 'string' && key.charAt(0) === '$' && key.charAt(1) === '$') {
+        val = undefinedValue;
+    } else if (value && value.window === value) {
+        val = '$WINDOW';
+    } else if (value && window.document === value) {
+        val = '$DOCUMENT';
+    } else if (value && value.$evalAsync && value.$watch) {
+        val = '$SCOPE';
+    }
+
+    return val;
+};
+
+/*
+ * paramArr
+ * */
+Utils.paramArr = function (arr) {
+    var resArr = [];
+    arr.forEach(function (item, index) {
+        resArr.push({
+            name: item[0],
+            required: item[1],
+            localIn: item[2]
+        });
+    });
+    return resArr;
+};

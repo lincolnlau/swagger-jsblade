@@ -1,0 +1,6 @@
+/*eslint-disable */
+/**
+ * 标题：                  API 调用工具
+ * swagger-jsblade版本：   $${config.bladeVersion}
+ */
+'use strict';

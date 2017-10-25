@@ -1,0 +1,22 @@
+/*
+ * interceptor, 钩子函数,支持返回promise形式和数据形式
+ * */
+Utils.interceptor = {
+    request: function (config) {
+        return config;
+    },
+    requestError: function (err) {
+        return err;
+    },
+    response: function (response) {
+        return response;
+    },
+    responseError: function (err) {
+        return err;
+    }
+};
+
+/*
+ * 是否使用钩子
+ * */
+Utils.useInterceptor = false;

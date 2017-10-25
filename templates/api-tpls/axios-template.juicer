@@ -1,0 +1,28 @@
+{@if !config.surroundMode}{@include file://./common/header-template.juicer, _}
+{@/if}{@if config.surroundMode}    {@/if}{@include file://./common/common-fn-template.juicer, _}
+/*
+ * 发送请求
+ * */
+Utils.sendReq = function (resolve, reject, options, success, error) {
+    {@if config.withCredentials}options.withCredentials = true;{@/if}
+    delete options.isForm;
+    axios(options)
+        .then(function (response) {
+            var data = response.data;
+            if (Utils.isFunction(success)) {
+                data = success(data);
+            }
+            resolve(data);
+        })
+        .catch(function (errorData) {
+            var err = errorData;
+            if (Utils.isFunction(error)) {
+                err = error(errorData);
+            }
+            reject(err);
+        });
+};
+
+{@include file://./common/createapi-template.juicer, _}
+
+{@include file://./common/apis-template.juicer, _}

@@ -1,0 +1,31 @@
+/*
+ * 请求说明
+ * _paramObj 数据参数对象     非必填
+ * success   成功回调函数     非必填 不推荐使用,可用promise的then处理
+ * error     异常回调函数     非必填 不推荐使用,可用promise的catch处理
+ * opt       请求时额外参数   非必填
+ * */
+
+{@each swagger.paths as path,index}
+    {@each path as req,key}
+/*
+ * $${req.summary}
+ {@each req.parameters as parameter,pIndex}
+ * @param [$${parameter.name}] [{@if parameter.required}必要{@else}可选{@/if}] [类型: $${parameter.type}{@if parameter.schema}$${parameter.schema.$ref}{@/if}] [描述: $${parameter.description}]
+ {@/each}
+ * */
+$${config.apiName}.prototype.$${req.fnName} = function (_paramObj, success, error, opt) {
+    var arr = [];
+    var options = {url: this.urlPre + '$${index}', {@if req.headerStr}headers: {@/if}$${req.headerStr}{@if req.headerStr}, {@/if}method: '$${key}'};
+    {@if req.transformRequestAsForm}
+    options.transformRequest = {@if req.transformRequestFormData}Utils.transformRequestFormData{@else}Utils.transformRequestAsForm{@/if};
+    {@/if}
+    {@each req.parameters as parameter,pIndex}
+    arr.push(['$${parameter.name}', {@if parameter.required}true{@else}false{@/if}, '$${parameter.in}']);
+    {@/each}
+    return Utils.apiCommon(_paramObj, options, arr, success, error, opt);
+};
+    {@/each}
+{@/each}
+
+{@if config.surroundMode}return $${config.apiName};{@/if}

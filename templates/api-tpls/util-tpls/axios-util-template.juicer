@@ -1,32 +1,33 @@
+
 /*
-* 工具对象
-* */
+ * 工具对象
+ * */
 var Utils = {};
 
 /*
-* 判断null 或 undefined
-* */
+ * 判断null 或 undefined
+ * */
 Utils.isNullOrUndefined = function (value) {
     return (typeof value === 'undefined' || value === null);
 };
 
 /*
-* isUndefined
-* */
+ * isUndefined
+ * */
 Utils.isUndefined = function (value) {
     return typeof value === 'undefined';
 };
 
 /*
-* isFunction
-* */
+ * isFunction
+ * */
 Utils.isFunction = function (value) {
     return typeof value === 'function';
 };
 
 /*
-* isObject
-* */
+ * isObject
+ * */
 Utils.isObject = function (value) {
     return value !== null && typeof value === 'object';
 };
@@ -43,8 +44,8 @@ Utils.isEmpty = function (value) {
 };
 
 /*
-* toJson
-* */
+ * toJson
+ * */
 Utils.toJson = function (obj) {
     var rFn = null;
     var undefinedValue;
@@ -56,8 +57,8 @@ Utils.toJson = function (obj) {
 };
 
 /*
-* cloneObj
-* */
+ * cloneObj 浅拷贝
+ * */
 Utils.cloneObj = function (obj) {
     var resObj = {};
     if (!Utils.isObject(obj)) {
@@ -72,8 +73,23 @@ Utils.cloneObj = function (obj) {
 };
 
 /*
-* 参数赋值
-* */
+ * 覆盖对象参数
+ * */
+Utils.assignObj = function (obj, addObj) {
+    if (!Utils.isObject(addObj) || !Utils.isObject(obj)) {
+        return obj;
+    }
+    for (var key in addObj) {
+        if (addObj.hasOwnProperty(key)) {
+            obj[key] = addObj[key];
+        }
+    }
+    return obj;
+};
+
+/*
+ * 参数赋值
+ * */
 Utils.getParams = function (paramArr, paramObj) {
     var tempObj = {};
     var key;
@@ -123,8 +139,8 @@ Utils.getParams = function (paramArr, paramObj) {
 };
 
 /*
-* 必须参数校验
-* */
+ * 必须参数校验
+ * */
 Utils.lackParam = function (reject, paramArr, paramObj, error) {
     var key;
     var required;
@@ -149,11 +165,11 @@ Utils.lackParam = function (reject, paramArr, paramObj, error) {
 };
 
 /*
-* multipart/form-data 类型表单,通常用于上传文件
-* */
+ * multipart/form-data 类型表单,通常用于上传文件
+ * */
 Utils.transformRequestFormData = function (data, headersGetter) {
     var undefinedValue;
-    var headers = headersGetter();
+    var headers = headersGetter;
     var fd;
     var createKey;
     var addToFd;
@@ -188,7 +204,7 @@ Utils.transformRequestFormData = function (data, headersGetter) {
             value = object[key];
             formKey = createKey(keys, key);
 
-            if (value instanceof File) {
+            if (value instanceof File || value instanceof Blob) {
                 fd.append(formKey, value);
             } else if (value instanceof FileList) {
                 len = value.length;
@@ -196,7 +212,8 @@ Utils.transformRequestFormData = function (data, headersGetter) {
                     fd.append(formKey, value[0]);
                 } else {
                     for (i = 0; i < len; i++) {
-                        fd.append(formKey + '[' + i + ']', value[i]);
+                        // fd.append(formKey + '[' + i + ']', value[i]);
+                        fd.append(formKey, value[i]);
                     }
                 }
             } else if (Utils.isObject(value)) {
@@ -213,10 +230,10 @@ Utils.transformRequestFormData = function (data, headersGetter) {
 };
 
 /*
-* application/x-www-form-urlencoded 类型表单,普通表单类型
-* */
+ * application/x-www-form-urlencoded 类型表单,普通表单类型
+ * */
 Utils.transformRequestAsForm = function (data, getHeaders) {
-    var headers = getHeaders();
+    var headers = getHeaders;
     var buffer = [];
     var value;
     var encodedStr;
@@ -317,3 +334,79 @@ Utils.paramArr = function (arr) {
     });
     return resArr;
 };
+
+/*
+ * 发送请求
+ * */
+Utils.sendReq = function (resolve, reject, options, success, error) {
+    delete options.isForm;
+    axios(options)
+        .then(function (response) {
+            var data = response.data;
+            if (Utils.isFunction(success)) {
+                data = success(data);
+            }
+            resolve(data);
+        })
+        .catch(function (errorData) {
+            var err = errorData;
+            if (Utils.isFunction(error)) {
+                err = error(errorData);
+            }
+            reject(err);
+        });
+};
+
+/*
+ * apiCommon
+ * api调用中的公共部分
+ * */
+Utils.apiCommon = function (_paramObj, options, a, success, error, opt) {
+    var paramObj = Utils.cloneObj(_paramObj);
+    var paramArr = Utils.paramArr(a);
+    if (!Promise) {
+        throw new Error('需要Promise,请加入Promise依赖!');
+    }
+    return new Promise(function (resolve, reject) {
+        if (Utils.lackParam(reject, paramArr, paramObj, error)) {
+            return false;
+        }
+        options = Utils.getOptions(options, paramArr, paramObj);
+        options = Utils.assignObj(options, opt);
+        Utils.sendReq(resolve, reject, options, success, error);
+        return true;
+    });
+};
+
+function __innerFn__ (config, options) {
+    var self = this;
+    var domain = config.domain;
+    var basePathNew = config.baseUrl;
+    var domainNew = (Utils.isObject(options)) ? options.domain : options;
+    domain = (typeof domainNew === 'string') ? domainNew : domain;
+    var urlPre = domain + basePathNew;
+    Object.keys(config.apis).forEach(function (key, index) {
+        var item = config.apis[key];
+        self[key] = function (_paramObj, success, error, opt) {
+            var arr = [];
+            var options = {};
+            options.url = urlPre + item.url;
+            options.method = item.method;
+            if (item.transformRequest) {
+                options.transformRequest = options.transformRequest || [];
+                options.transformRequest.push(Utils[item.transformRequest]);
+            }
+            if (item.headers) {
+                options.headers = item.headers;
+            }
+
+            Object.keys(item.parameters).forEach(function (param, subIndex) {
+                arr.push([param].concat(item.parameters[param]));
+            });
+
+            return Utils.apiCommon(_paramObj, options, arr, success, error, opt);
+        };
+    });
+}
+
+return __innerFn__;
