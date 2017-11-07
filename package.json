@@ -42,5 +42,8 @@
   },
   "bin": {
     "blade": "bin/blade.js"
+  },
+  "devDependencies": {
+    "iron-node": "^3.0.20"
   }
 }
