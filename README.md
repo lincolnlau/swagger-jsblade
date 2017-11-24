@@ -270,8 +270,9 @@ module.exports = {
 }
 
 ```
-
 目前没有对Restful API的Request Method做明显区分，初衷是方便开发者能够快速使用Mock的数据，可以在文件里定义多个场景下不同的返回值
+
+我们在Mock server中内封装了与webpack-dev-server的proxy同样的功能，详细使用方法可见[webpack-dev-server proxy](https://doc.webpack-china.org/configuration/dev-server/#devserver-proxy)
 
 ## Changelog
 Detailed changes for each release are documented in the [release notes](https://github.com/lincolnlau/swagger-jsblade/releases).
