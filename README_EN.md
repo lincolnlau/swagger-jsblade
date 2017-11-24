@@ -2,36 +2,32 @@
 
 [![npm version](https://img.shields.io/npm/v/swagger-jsblade.svg?style=flat)](https://www.npmjs.com/package/swagger-jsblade)[![NPM downloads](http://img.shields.io/npm/dm/swagger-jsblade.svg)](https://npmjs.org/package/swagger-jsblade)[![Join the chat at https://gitter.im/jsblade/Lobby](https://badges.gitter.im/swagger-jsblade/jsblade.svg)](https://gitter.im/jsblade/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-## English Version
-If you find README of english version ,click [HERE](https://github.com/lincolnlau/swagger-jsblade/blob/master/README_EN.md).
+## Introduction
 
-## 介绍
+Jsblade is a tool kit for Front-End developers who use Swagger as their API definition.
+These are the main it solved.
 
-Jsblade是专为前端开发者提供的基于Swagger接口定义来使用的前端自动化工具。
-主要解决下面几个问题：
+* Boilerplate
+* Auto generate API based built-in templates and custom template
+* Auto mock API and custom mock response
 
-* 项目模板
-* 基于内置模板和自定义模板生成API调用文件
-* 自动生成Mock服务端，提供模拟数据。
-
-关于Swagger™是什么？可以参考 (Swagger官网)[http://swagger.io/]
+For complete information about Swagger™, you can check the Swagger Specification project. It contains general information and the actual Swagger specification.
 
 
-
-## 安装
+## Install
 ```shell
 npm i swagger-jsblade -g
 ```
-### 生成项目的例子
+### Boilerplate Example
 ```shell
 blade create myProject -f vue
 ```
 
-| 命令 | 参数 | 功能描述 |
+| Command | Options | Description |
 | --- | --- | ---
-| -f, —-framework| 'angular1' , 'vue' |内置了angular1.x 和vue1.x的项目模板|
+| -f, —-framework| 'angular1' , 'vue' |Built-in Angular 1.5.x and Vue 1.x project bolierplate|
 
-**详细用法e**
+**Detail Usage**
 
 ```shell
 blade create -h
@@ -45,19 +41,19 @@ blade create -h
     -f, --framework <framework>  angular1|vue 中的一个
 ```
 
-### API 调用文件的使用例子
+### API Generation Example
 ```
 blade api DataApi ./input/swagger.json ./output/service dataApi
 ```
-| 命令 | 参数 | 功能描述 |
+| Command | Options | Description |
 | --- | --- | ---
-| -a, —-ajax <type>| n, s|API的类型参数 : n为angular的$http; s是兼容Node或浏览器端的 superagent类型
-| -s, —-surround <mode>| 1,2,3,4 |API文件的包裹模块类型: 1 是 UMD; 2 是 AMD; 3 是 CommonJS; 4 是 JavaScript closure
-| -w, —-withCredentials |  |w是开启 CORS
-| -t, —-tags <tagName>| 对应Swagger定义中的tagName |可以指定根据哪些tagName生成哪些API: @tagOne -> 生成tagName为tagOne的API. @tagOne@tagTwo -> 生成tagName为tagOne和tageTwo的API
-| -p, —-promise |  |p开启Promise模式
+| -a, —-ajax <type>| n, s|generated API type : n for angular's $http; s for NodeJS or browser's superagent
+| -s, —-surround <mode>| 1,2,3,4 |API Module: 1 for UMD; 2 for AMD; 3 for CommonJS; 4 for JavaScript closure
+| -w, —-withCredentials |  |Enable CORS
+| -t, —-tags <tagName>| Swagger definition's tagName |Only generate API based on tagName: @tagOne -> generate tagOne. @tagOne@tagTwo -> generate both tagOne and tageTwo
+| -p, —-promise |  |Enable Promise
 
-**详细用法**
+**Detail Usage**
 
 ```shell
 blade api -h
@@ -80,8 +76,8 @@ blade api -h
     -h, --help              output usage information
 ```
 
-#### 使用生成的 API
-**简单用法**
+#### Using API
+**Simple Usage**
 
 ```javascript
 import API from '../api/dataApi';
@@ -92,10 +88,10 @@ api.xxxx(param).then(res => {
     console.log('get respone:' + res)
 })
 ```
-**支持Superagent/Superbridge/Fetch 拦截器**
-仿照Angular的$http中的用法 , 增加支持superagent/superbridge/fetch类型的拦截器,
-其中angular/axios库本身自己就含有拦截器。
-可以如下来使用拦截器:
+**Superagent/Superbridge/Fetch Interceptor Enhanced**
+like Angular's $http , we add an interceptor to superagent/superbridge/fetch type API,
+angular/axios has interceptor yet.
+you can use it like this:
 
 ```
 import API from '../api/dataApi';
@@ -134,7 +130,6 @@ let api = new API('http://xxx.com');
 ```
 
 **如果生成的是cofig形式,可参照下面demo使用**
-
 ```
 import ApiUtil from '@/common/services/ApiUtil';    // 引入工具包
 import ApiConfig from '@/common/services/config';   // 引入生成的配置文件
@@ -160,8 +155,8 @@ export default Apis;
 
 ApiUtil调用工具可用 blade util命令生成
 
-###API调用文件的生成
-```shell
+###API调用工具生成
+```
 blade util -h
 
   Usage: util [options] <toPath> [outFileName]
@@ -178,28 +173,28 @@ blade util -h
     -h, --help             output usage information
 
 ```
-### Mock 功能的使用例子
-#### 生成Mock数据
+### Mock Example
+#### Mock data generation
 
-```shell
+```
 blade mock ./input/swagger.json -f ./output/swagger.mock.json
 ```
-模拟数据会已当前的swagger定义，填充返回值定义schema里的example属性 ```responses.[code].schema.example```
+The mock data will generate at ```responses.[code].schema.example```
 ```
 ```
-如果你的swagger定义文件本身就含有定义好的example属性，在生成数据时会优先使用该gaexample，如果没有定义就会随机生成，目前默认字符串类型会以当前的key名来生成。
+if your original swagger file has defined some example,will remain the same otherwhise random generate.
 
-#### 启动Mock server
+#### Mock server
 
 ```
 blade mock ./input/swagger.json -s 8001
 ```
-| 命令 | 参数 | 功能描述 |
+| Command | Options | Description |
 | --- | --- | ---
-| -f, —-file <swagger文件>| 文件路径|生成出含有随机值example的新swagger定义文件
-| -s, —-server <端口号>|  端口号|指定启动mock server的端口号，默认为8000
-| -c, —-config <mock配置文件>|配置文件路径| mock 2.0中新增: 指定自定义的配置文件，如果不指定就会在当前目录下自动生成默认名为'mock.config.js'的配置文件
-| -l, —-lite||不启用 mock 2.0功能的默认提示
+| -f, —-file <mockFilePath>| file path|generate swagger mock file which definition's example is filled with random mock data
+| -s, —-server <port>|  port number|mock server's port ,default is 8000
+| -c, —-config <config file>|config file path| mock 2.0(v0.2.0) added: custom config file,default config will prompt whether generate at your project root dir, named with 'mock.config.js'
+| -l, —-lite||disable mock 2.0 default prompt
 
 **Detail Usage**
 
@@ -219,60 +214,6 @@ blade mock -h
     -l, --lite               不自动识别config文件
 
 ```
-
-#### Mock 2.0高级功能的使用
-由于目前Swagger2.0规范中对同一个HTTP状态码无法定义多返回值的问题，我们在Mock2.0新增生成外置的本地Mock文件
-文件名格式为
-```
--- mock （存放外置文件的目录）
-|- path-api-v1-api1.json （对应API为path/api/v1/api1的）
-|- path-api-v1-api2.json （对应API为path/api/v1/api2）
-```
-生成的文件格式为
-```json
-{"cases": [{example: '模拟数据1'},{example: '模拟数据2'}]}
-```
-默认会基于Swagger当前接口返回值生成仅一个模拟数据，如需增加可在cases数组中逐个添加，并在mock.config.js中启用对应的接口。
-
-mock.config.js格式如下
-
-```javascript
-module.exports = {
-    mockDir: './mock/',
-    basePath: '/xx',
-    path: {
-        '/api/v1/xxx': 0,// cases index 默认为0代表不读取此接口对应的本地文件, 1则为读取cases中第1个模拟返回值, n则为第cases[n-1]个模拟返回值
-    },
-  /**
-    * Proxy [Object]: {path: Object} Set the proxy rule, keys are the path for matching, the value should a object to set the detail matching rules.
-    * @path [string]: Path that matching, can use glob pattern for matching.
-    *   Example:
-    *     '/api': matches paths starting with /api
-    *     '**': matches any path
-    *     '/api/*.html': matches any path ending with .html in the path of /api
-    *     '/api/**': matches any path starting with /api
-    * @path.target [string]: set the target host. The scheme is necessary (such as 'http://' or 'http://'), even if the target is a IP address, it should write with the shcema.
-    * @path.debug [Boolean]: whether print Http headers or not. default false
-    * @path.headers [Object]: set fields in the request headers.
-    * @path.headers.cookie [String]: set the cookie field in the request headers
-    * @path.headers.host [String]: set the host field in the request headers
-    */
-    proxy: {
-        '/path/**': {
-            target: 'http://target.com:80',
-            debug: false,
-            headers: {
-                cookie: 'ssoid=12345678*abcdefg;',
-                host: 'target.com'
-            }
-        }
-    }
-}
-
-```
-
-目前没有对Restful API的Request Method做明显区分，初衷是方便开发者能够快速使用Mock的数据，可以在文件里定义多个场景下不同的返回值
-
 ## Changelog
 Detailed changes for each release are documented in the [release notes](https://github.com/lincolnlau/swagger-jsblade/releases).
 
@@ -281,4 +222,3 @@ We have collected some [frequently asked questions](https://github.com/lincolnla
 
 ## LICENSE
 MIT
-
