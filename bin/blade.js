@@ -11,7 +11,9 @@ var frameworks = Object.keys(project.frameworks).join('|');
 var cli = require('../lib/util/cli');
 var execute = cli.execute;
 var appInfo = require('./../package.json');
-
+function list(val) {
+    return val.split(',');
+}
 app
     .version(appInfo.version);
 
@@ -50,6 +52,7 @@ app
     .option('-s, --server [portNum]', "启动mock server,端口号,默认8000")
     .option('-c, --config <filePath>', "mock数据配置文件")
     .option('-l, --lite', "不自动识别config文件")
+    .option('-i, --include <items>', "多swagger文件path合并到mock.config.js", list)
     .action(execute(mock.create));
 
 app.parse(process.argv);

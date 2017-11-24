@@ -5,3 +5,4 @@ temp
 npm-debug.log
 mock.config.js
 mock.json
+swagger/*
