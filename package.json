@@ -28,7 +28,6 @@
     "fs-extra": "^0.30.0",
     "fs-finder": "^1.8.1",
     "inquirer": "^1.0.2",
-    "jsonfile": "^4.0.0",
     "juicer-express-adapter": "^0.1.10",
     "lodash": "^4.13.1",
     "node-find-files": "0.0.4",
@@ -36,14 +35,9 @@
     "request-sync-win": "0.0.2",
     "swagger-express-middleware-with-chance": "^1.1.3",
     "swagger-mock-file-generator": "^1.1.1",
-    "swagger-mock-file-generator-by-cases": "^2.0.0",
-    "swagger-parser": "^3.4.2",
-    "universalify": "^0.1.1"
+    "swagger-mock-file-generator-by-cases": "^1.2.0"
   },
   "bin": {
     "blade": "bin/blade.js"
-  },
-  "devDependencies": {
-    "iron-node": "^3.0.20"
   }
 }
