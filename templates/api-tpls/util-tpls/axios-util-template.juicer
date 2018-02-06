@@ -385,6 +385,7 @@ function __innerFn__ (config, options) {
     var domainNew = (Utils.isObject(options)) ? options.domain : options;
     domain = (typeof domainNew === 'string') ? domainNew : domain;
     var urlPre = domain + basePathNew;
+    var withCredentials = config.withCredentials;
     Object.keys(config.apis).forEach(function (key, index) {
         var item = config.apis[key];
         self[key] = function (_paramObj, success, error, opt) {
@@ -399,7 +400,9 @@ function __innerFn__ (config, options) {
             if (item.headers) {
                 options.headers = item.headers;
             }
-
+            if (withCredentials) {
+                options.withCredentials = withCredentials;
+            }
             Object.keys(item.parameters).forEach(function (param, subIndex) {
                 arr.push([param].concat(item.parameters[param]));
             });
